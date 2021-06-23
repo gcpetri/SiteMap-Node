@@ -1,0 +1,30 @@
+{
+  "name": "geositemap",
+  "version": "1.0.0",
+  "description": "Scrape .pdf GPS Coordinates & .kmz Points/Polygons to create a Master .kml suited for Google Earth",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "sass": "node-sass public/stylesheets/scss/ribbon.scss public/stylesheets/style.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gcpetri/SiteMap-Node.git"
+  },
+  "author": "Gregory Petri",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gcpetri/SiteMap-Node/issues"
+  },
+  "homepage": "https://github.com/gcpetri/SiteMap-Node#readme",
+  "dependencies": {
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "node": "^16.3.0",
+    "pdfreader": "^1.2.10"
+  },
+  "devDependencies": {
+    "eslint": "^7.29.0",
+    "node-sass": "^6.0.0"
+  }
+}
