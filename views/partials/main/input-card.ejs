@@ -1,0 +1,31 @@
+<div class='card input-card'>
+    <div class='card-body' style='padding-left: 0px; padding-right: 0px; padding-bottom: 0px;'>
+        <% let t = ''; %>
+        <% if (title === 'File Includes') { t = 'Only files containing these names will be scraped'; } %>
+        <% if (title === 'Folder Includes') { t = 'Only folders containing these names will be scraped'; } %>
+        <% if (title === 'Regular Expression') { t = 'These tell the scraper what to extract from the files'; } %>
+        <h5 class='card-title' data-bs-toggle='tooltip' data-bs-placement='top' title='<%- t %>'>
+            <%- title %>
+        </h5>
+        <% if (title === 'Regular Expression') { %>
+            <p class='light-text'>
+                Visit <a href='https://www.regextester.com/'>RegexTester.com</a> for help
+            </p>
+            <input id='case-sensitive-checkbox' class='form-check-input' type='checkbox'/><label>  Case Sensitive</label>
+        <% } %>
+        <div class='d-flex justify-content-center''>
+            <div class='p-2'>
+                <input id='input-<%- tId %>' class='form-control' type='text'/>
+            </div>
+            <div class='p-2'>
+                <button id='btn-add-<%- tId %>' class='btn btn-light'>
+                    <i class='fa fa-plus'></i>
+                    <span class='hidden-xs'>Add</span>
+                </button>
+            </div>
+        </div>
+        <button class='btn btn-light w-100' type='button' data-bs-toggle='collapse' data-bs-target='#input-<%- tId %>-data' aria-expanded='false' aria-controls='input-<%- tId %>-data' style='border-top-left-radius: 0px; border-top-right-radius: 0px; margin-top: 6px;'>
+            <span class='light-text'>Show <%- title %> data entered <span class='code' id='num-input-<%- tId %>'>0</span></span>
+        </button>
+    </div>
+</div>

@@ -1,3 +1,32 @@
-.body {
-  text-align: center;
+// bootstrap imports
+@import "../../../node_modules/bootstrap/scss/functions";
+@import "../../../node_modules/bootstrap/scss/variables";
+@import "../../../node_modules/bootstrap/scss/mixins";
+// optional
+@import "../../../node_modules/bootstrap/scss/root";
+@import "../../../node_modules/bootstrap/scss/reboot";
+@import "../../../node_modules/bootstrap/scss/type";
+@import "../../../node_modules/bootstrap/scss/grid";
+@import "../../../node_modules/bootstrap/scss/tables";
+@import "../../../node_modules/bootstrap/scss/forms";
+@import "../../../node_modules/bootstrap/scss/buttons";
+@import "../../../node_modules/bootstrap/scss/transitions";
+@import "../../../node_modules/bootstrap/scss/close";
+@import "../../../node_modules/bootstrap/scss/modal";
+@import "../../../node_modules/bootstrap/scss/utilities";
+
+@import "ribbon.scss";
+@import "index.scss";
+
+body {
+    color: #555 !important;
+
+    .code {
+        color: rgb(253, 53, 53) !important;
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+        background-color: #ffd1d1 !important;
+        border-radius: 1px !important;
+        font-family: monospace !important;
+    }
 }

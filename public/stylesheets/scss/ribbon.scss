@@ -2,9 +2,13 @@
   justify-content: center;
   text-align: center;
   margin: auto;
-  display: block;
-  
+  font-weight: 300;
+  color: #666;
+  background-color: #f0f0f0;
   .ribbon-title {
-    text-align: center;
+    font-size: 1.8em;
+    color: #555;
+    font-weight: 500;
+    padding: 14px;
   }
 }

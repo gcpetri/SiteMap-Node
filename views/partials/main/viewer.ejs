@@ -1,0 +1,74 @@
+<div class='viewer-body'>
+    <div class='container text-viewer'>
+        <div class='text-viewer-title'>
+            <h4>File Scraper</h4>
+        </div>
+        <div class='viewer-file-upload'>
+            <p>
+                <span>Upload file to scrape its contents matching your filters</span></br>
+                <span class='light-text'>Accepts .zip file (more compression types supported in the future)</span>
+            </p>
+            <form id='scraper-file-form' enctype='multipart/form-data' class='d-flex justify-content-center'>
+                <div class='p-2'>
+                    <input type='file' class='form-control' id='scraper-file' name='scraperFile' accept='.zip' style='margin-bottom: 6px;'/>
+                </div>
+                <div class='p-2'>
+                    <button class='btn btn-secondary' id='btn-scraper-file-clear' type='button'>Clear</button>
+                </div>
+            </form>
+            <button class='btn btn-success' id='btn-scraper-file' type='button'>
+                <i class="fa fa-play"></i>
+                <span class='hidden-xs'>Start</span>
+            </button>
+            <div class='d-flex justify-content-center'>
+                <div class='p-2'>
+                    <span id='num-files-scraped'>num</span>
+                </div>
+                <div class='p-2'>
+                    <span id='scraper-state'>state</span>
+                </div>
+            </div>
+        </div>
+        </br>
+        <div class='text-viewer-title'>
+            <h4>Test the Scraper</h4>
+        </div>
+        <div class='viewer-file-upload'>
+            <p>
+                <span>Upload file to test your regular expression(s)</span></br>
+                <span class='light-text'>Accepts .pdf, .txt, & .docx file types</span>
+            </p>
+            <form id='view-file-form' enctype='multipart/form-data' class='d-flex justify-content-center'>
+                <div class='p-2'>
+                    <input type='file' class='form-control' id='view-file' name='viewFile' accept='.pdf,.txt,.docx' style='margin-bottom: 6px;'/>
+                </div>
+                <div class='p-2'>
+                    <button class='btn btn-secondary' id='btn-viewer-file-clear' type='button'>Clear</button>
+                </div>
+            </form>
+        </div>
+        </br>
+        <span class='light-text'>Regular expression matches in <span style='color: blue'>blue</span></span>
+        <div class='accordion' id='accordionViewer'>
+            <div class='accordion-item'>
+                <div class='accordion-header' id='headingOne' style='padding-top: 6px;'>
+                    <button class='btn btn-secondary accordion-button' type='button' data-bs-toggle='collapse' data-bs-target='#collapseOne' aria-expanded='true' aria-controls='collapseOne'>
+                        <i class="fa fa-eye"></i>
+                        <span class="hidden-xs">Show/hide file</span>
+                    </button>
+                    <button class='btn btn-light' id='btn-view-file-refresh' type='button'>
+                        <i class="fa fa-refresh"></i>
+                        <span class="hidden-xs">Refresh</span>
+                    </button>
+                </div>
+                <div id='collapseOne' class='accordion-collapse collapse show text-viewer-text' aria-labelledby='headingOne' data-bs-parent='#accordionViewer'>
+                    <div class='accordion-body' style='border-radius: 5px'>
+                        <p id='text-view' style='background-color: #f0f0f0; box-shadow: 0 8px 8px 1px #aaa; max-height: 500px;'>
+                            File text...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

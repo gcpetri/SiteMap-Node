@@ -1,0 +1,101 @@
+.main {
+    text-align: center;
+}
+
+.nav-section {
+    padding: 0;
+    .nav-body {
+        background-color: #343E3D;
+        position: absolute;
+        display: block;
+        left: 0;
+        height: 100%;
+        .nav-item {
+            height: 70px;
+            a {
+               height: 100%;
+            }
+            i {
+                padding-top: 12px;
+                font-size: 30px;
+                color: whitesmoke !important;
+            }
+        }
+        .nav-item:hover {
+            i {
+                color: #333 !important;
+            }
+            background-color: #aaa;
+        }
+    }
+}
+
+.viewer {
+    padding-top: 12px;
+    min-height: 610px;
+    .text-viewer-text {
+        max-height: 600px;
+        border-radius: 8px;
+        padding: 16px;
+        #text-view {
+            overflow-y: scroll;
+            word-wrap: break-word
+        }
+    }
+    .viewer-file-upload {
+        background-color: rgb(240, 240, 240);
+        border-radius: 4px;
+        margin: 12px 50px 12px 50px;
+        padding: 20px;
+        box-shadow: 0 8px 8px 1px #aaa;
+    }
+}
+
+.inputs {
+    // border-left: 2px solid #cdcdcd;
+    padding-top: 12px;
+    padding-bottom: 20px;
+    .input-body {
+        .toggle-visibility {
+            height: 100%;
+            width: 20px;
+        }
+        .input-card {
+            margin-top: 20px;
+            box-shadow: 0 8px 8px 1px #aaa;
+            padding-bottom: 0px;
+            padding-right: 0px;
+            padding-left: 0px;
+        }
+    }
+}
+
+.light-text {
+    font-weight: 300;
+    color: #666;
+}
+
+.toast-container {
+    position: fixed;
+    z-index: 1000;
+    right: 12px;
+    bottom: 12px;
+    .toast {
+        background-color: #343E3D !important;
+        color: white;
+        border-radius: 4px !important;
+        opacity: 1.0 !important;
+        min-width: 400px !important;
+        padding-left: 20px;
+        padding-right: 20px;
+        .toast-header {
+            color: white;
+            background-color: inherit !important;
+            display: block !important;
+            text-align: left !important;
+        }
+        .toast-body {
+            background-color: inherit !important;
+        }
+    }
+}
