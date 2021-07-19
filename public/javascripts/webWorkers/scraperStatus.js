@@ -14,7 +14,7 @@ const getScraperStatus = async (threadId) => {
       },
     });
     const result = await res.json();
-    console.info(JSON.stringify(result));
+    // console.info(JSON.stringify(result));
     // eslint-disable-next-line prefer-destructuring
     lastNumFilesScraped = result[0];
     if (result[0] && result[1]) {
@@ -32,6 +32,6 @@ const getScraperStatus = async (threadId) => {
 };
 
 onmessage = async (e) => {
-  console.info(`web worker got message ${e.data}`);
+  // console.info(`web worker got message ${e.data}`);
   await getScraperStatus(e.data);
 };

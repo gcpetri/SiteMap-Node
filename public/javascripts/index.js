@@ -60,7 +60,7 @@ SiteMapHome.showRegexInViewer = async (text) => {
     $('#text-view').html('');
     const tags = $('#case-sensitive-checkbox[type=checkbox]').is(':checked') ? 'g' : 'ig';
     const re = new RegExp(regex, tags);
-    console.info(`Refreshing with regex ${re}`);
+    // console.info(`Refreshing with regex ${re}`);
     const newText = await text.replaceAll(re, (match) => `<span style="color: white; background-color: blue; padding: 1px 3px 1px 3px; border-radius: 3px;">${match}</span>`);
     $('#text-view').html(newText);
   } else {
@@ -96,24 +96,38 @@ SiteMapHome.getInputButton = (str) => {
   const btn = `<button id='btn-input-list-${str}' type='button' class='list-group-item list-group-item-action' onclick=SiteMapHome.removeInputButton(this)>${str}</button>`;
   return btn;
 };
+SiteMapHome.validateInputStr = (str) => {
+  const entityMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+    '/': '&#x2F;',
+    '`': '&#x60;',
+    '=': '&#x3D;',
+  };
+  // eslint-disable-next-line no-useless-escape
+  return str.replace(/[&<>"'`=\/]/g, (s) => entityMap[s]);
+};
 
 // ----- viewer helpers -----
 SiteMapHome.getFileIncludes = async () => {
-  const fileList = [];
+  let fileList = '';
   // eslint-disable-next-line func-names
   $('#list-group-file-includes').children().each(function () {
-    fileList.push($(this).text());
+    fileList += `${$(this).text()}|`;
   });
-  return fileList;
+  return (fileList.length > 0) ? fileList.slice(0, -1) : fileList;
 };
 
 SiteMapHome.getFolderIncludes = async () => {
-  const folderList = [];
+  let folderList = '';
   // eslint-disable-next-line func-names
   $('#list-group-folder-includes').children().each(function () {
-    folderList.push($(this).text());
+    folderList += `${$(this).text()}|`;
   });
-  return folderList;
+  return (folderList.length > 0) ? folderList.slice(0, -1) : folderList;
 };
 
 SiteMapHome.getFileTypes = async () => {
@@ -174,25 +188,52 @@ SiteMapHome.validateFileName = async (fileName) => {
   }
 };
 
+// ---- scraper helpers ----
+SiteMapHome.getCSV = async (threadId) => {
+  try {
+    window.open(`http://localhost:8080/api/scraper/csv/${threadId}`);
+  } catch (err) {
+    console.info(err);
+    console.info('could not retrieve csv file');
+  }
+};
+
+SiteMapHome.getTXT = async (threadId) => {
+  try {
+    window.open(`http://localhost:8080/api/scraper/txt/${threadId}`);
+  } catch (err) {
+    console.info(err);
+    console.info('could not retrieve txt file');
+  }
+};
+
 SiteMapHome.startScraperWorker = async (threadId, btn, originalColor) => {
   const worker = new Worker('/javascripts/webWorkers/scraperStatus.js');
   worker.postMessage(threadId);
-  worker.onmessage = (e) => {
+  worker.onmessage = async (e) => {
     $('#num-files-scraped').text(e.data[0]);
     $('#scraper-state').text(e.data[1]);
-    console.info(`Message received from worker ${e.data}`);
+    // console.info(`Message received from worker ${e.data}`);
     if (e.data[1] === 'done' || e.data[1] === 'error') {
       $(btn).css('background-color', originalColor);
       $(btn).attr('disabled', false);
+      $('.scraper-spinner').css('visibility', 'hidden');
       worker.terminate();
+      $('.toast-container').append(SiteMapHome.getToast('Success', 'file scraper completed'));
+      await SiteMapHome.getCSV(threadId);
+      await SiteMapHome.getTXT(threadId);
     }
   };
-  worker.onerror = (e) => {
+  worker.onerror = async (e) => {
     $('#scraper-state').text('error');
     console.info(e);
     worker.terminate();
     $(btn).css('background-color', originalColor);
     $(btn).attr('disabled', false);
+    $('.scraper-spinner').css('visibility', 'hidden');
+    $('.toast-container').append(SiteMapHome.getToast('Error', 'file scraper received an error'));
+    await SiteMapHome.getCSV(threadId);
+    await SiteMapHome.getTXT(threadId);
   };
 };
 
@@ -241,6 +282,7 @@ SiteMapHome.postStartScraper = async (filePath) => {
 
 // === run initially ===
 $(() => {
+  $('.scraper-spinner').css('visibility', 'hidden');
   // initialize boostrap tooltips
   $('[data-toggle="tooltip"]').tooltip();
   // toasts
@@ -271,7 +313,6 @@ $(() => {
       $('.toast-container').append(SiteMapHome.getToast('Error', 'could not convert pdf to text'));
     }
     $(this).css('background-color', originalColor);
-    console.info(file);
     await SiteMapHome.validateFileName(file.name);
   });
 
@@ -297,7 +338,8 @@ $(() => {
       return;
     }
     $('#input-regex-input').val('');
-    $('#list-group-regex-input').append(SiteMapHome.getInputButton(inputStr));
+    const goodInputStr = SiteMapHome.validateInputStr(inputStr);
+    $('#list-group-regex-input').append(SiteMapHome.getInputButton(goodInputStr));
     const strNum = $('#num-input-regex-input').text();
     $('#num-input-regex-input').text((parseInt(strNum, 10) + 1).toString());
     await SiteMapHome.refreshViewer();
@@ -312,7 +354,8 @@ $(() => {
         return;
       }
       $(this).val('');
-      $('#list-group-regex-input').append(SiteMapHome.getInputButton(inputStr));
+      const goodInputStr = SiteMapHome.validateInputStr(inputStr);
+      $('#list-group-regex-input').append(SiteMapHome.getInputButton(goodInputStr));
       const strNum = $('#num-input-regex-input').text();
       $('#num-input-regex-input').text((parseInt(strNum, 10) + 1).toString());
       await SiteMapHome.refreshViewer();
@@ -328,7 +371,8 @@ $(() => {
       return;
     }
     $('#input-file-includes').val('');
-    $('#list-group-file-includes').append(SiteMapHome.getInputButton(inputStr));
+    const goodInputStr = SiteMapHome.validateInputStr(inputStr);
+    $('#list-group-file-includes').append(SiteMapHome.getInputButton(goodInputStr));
     const strNum = $('#num-input-file-includes').text();
     $('#num-input-file-includes').text((parseInt(strNum, 10) + 1).toString());
   });
@@ -342,7 +386,8 @@ $(() => {
         return;
       }
       $(this).val('');
-      $('#list-group-file-includes').append(SiteMapHome.getInputButton(inputStr));
+      const goodInputStr = SiteMapHome.validateInputStr(inputStr);
+      $('#list-group-file-includes').append(SiteMapHome.getInputButton(goodInputStr));
       const strNum = $('#num-input-file-includes').text();
       $('#num-input-file-includes').text((parseInt(strNum, 10) + 1).toString());
     }
@@ -357,7 +402,8 @@ $(() => {
       return;
     }
     $('#input-folder-includes').val('');
-    $('#list-group-folder-includes').append(SiteMapHome.getInputButton(inputStr));
+    const goodInputStr = SiteMapHome.validateInputStr(inputStr);
+    $('#list-group-folder-includes').append(SiteMapHome.getInputButton(goodInputStr));
     const strNum = $('#num-input-folder-includes').text();
     $('#num-input-folder-includes').text((parseInt(strNum, 10) + 1).toString());
   });
@@ -371,10 +417,22 @@ $(() => {
         return;
       }
       $(this).val('');
-      $('#list-group-folder-includes').append(SiteMapHome.getInputButton(inputStr));
+      const goodInputStr = SiteMapHome.validateInputStr(inputStr);
+      $('#list-group-folder-includes').append(SiteMapHome.getInputButton(goodInputStr));
       const strNum = $('#num-input-folder-includes').text();
       $('#num-input-folder-includes').text((parseInt(strNum, 10) + 1).toString());
     }
+  });
+
+  // clear the scraper input
+  $('#btn-scraper-file-clear').on('click', (e) => {
+    e.preventDefault();
+    $('#scraper-file').val('');
+    $('#num-files-scraped').text('0');
+    $('#scraper-state').text('inactive');
+    $('#btn-scraper-file').css('background-color', '#28a745');
+    $('#btn-scraper-file').attr('disabled', false);
+    $('.scraper-spinner').css('visibility', 'hidden');
   });
 
   // eslint-disable-next-line func-names
@@ -388,6 +446,7 @@ $(() => {
     const originalColor = $(this).css('background-color');
     $(this).css('background-color', '#eee');
     $(this).attr('disabled', true);
+    $('.scraper-spinner').css('visibility', 'visible');
     const formData = new FormData();
     formData.append('file', file);
     try {
@@ -398,7 +457,6 @@ $(() => {
         throw new Error('no file type(s) checked');
       }
       const filePath = await SiteMapHome.postScraperUpload(formData);
-      // console.info(`uploaded ${filePath}`);
       if (!filePath) {
         $('.toast-container').append(SiteMapHome.getToast('Error', 'could not get provided'));
         return;
@@ -408,6 +466,7 @@ $(() => {
     } catch (err) {
       $(this).css('background-color', originalColor);
       $(this).attr('disabled', false);
+      $('.scraper-spinner').css('visibility', 'hidden');
       console.info(`ERROR: ${err}`);
       $('.toast-container').append(SiteMapHome.getToast('Error', err.message));
     }

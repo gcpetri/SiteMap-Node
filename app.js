@@ -32,6 +32,8 @@ app.post('/api/viewer', previewFileUpload.single('file'), viewerController.loadF
 app.post('/api/scraper/upload', scraperFileUpload.single('file'), scraperController.verifyFileUpload);
 app.post('/api/scraper/start', scraperController.scraperMain);
 app.get('/api/scraper/status/:threadId', scraperController.getStatus);
+app.get('/api/scraper/csv/:threadId', scraperController.getCSV);
+app.get('/api/scraper/txt/:threadId', scraperController.getTXT);
 
 // === route middlewares ===
 app.use('/home', indexRouter.homepage);

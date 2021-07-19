@@ -2788,6 +2788,9 @@ textarea.form-control-lg {
     margin: 12px 50px 12px 50px;
     padding: 20px;
     box-shadow: 0 8px 8px 1px #aaa; }
+  .viewer .scraper-spinner {
+    height: 15px;
+    width: 15px; }
 
 .inputs {
   padding-top: 12px;

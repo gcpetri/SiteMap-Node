@@ -1,4 +1,4 @@
-class RegexMatcher extends RegExp {
+class RegExpMatchAll extends RegExp {
   [Symbol.matchAll](str) {
     const result = RegExp.prototype[Symbol.matchAll].call(this, str);
     if (!result) {
@@ -8,4 +8,4 @@ class RegexMatcher extends RegExp {
   }
 }
 
-exports.RegexMatcher = RegexMatcher;
+exports.RegExpMatchAll = RegExpMatchAll;

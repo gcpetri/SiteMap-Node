@@ -5,7 +5,7 @@ const pdftotext = require('pdf-to-text');
 const mammoth = require('mammoth');
 const textract = require('textract');
 const logger = require('../utils/logger');
-// const RegexMatcher = require('../utils/regexMatcher');
+const { RegExpMatchAll } = require('../utils/regex');
 
 // === promisify methods ===
 const readFile = promisify(fs.readFile);
@@ -79,11 +79,8 @@ exports.getDocxText = async (filePath) => {
 
 // ------ regex methods -------
 exports.regexFromText = async (regex, tags, text) => {
-  // const re = new RegexMatcher.RegexMatcher(regex, tags);
-  const re = new RegExp(regex, tags);
-  const matches = await text.match(re, tags);
-  logger.info(matches);
-  return matches;
+  const re = new RegExpMatchAll(regex, tags);
+  return text.matchAll(re);
 };
 
 // ------- !IMPORTANT to free server disk space ---------
