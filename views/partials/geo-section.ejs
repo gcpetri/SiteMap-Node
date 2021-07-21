@@ -1,7 +1,30 @@
-<div class='geo-body' id='geo-section'>
+<div class='geo-body bg-light col-sm-10' id='geo-section'>
     <div class='container geo-viewer'>
         <div class='text-viewer-title'>
             <h4>Geo Tool</h4>
+        </div>
+        <p class='light-text'>
+            Upload a .json file from the file scraper containing GPS Coordinates as regular expression matches</br>
+            This will return a .kml file suited for google earth
+        </p>
+        <div class='card'>
+            <div class='card-body'>
+                <form id='geo-file-form' enctype='multipart/form-data' class='d-flex justify-content-center'>
+                    <div class='p-2'>
+                        <input type='file' class='form-control' id='geo-file' name='geoFile' accept='.json' style='margin-bottom: 6px;'/>
+                    </div>
+                    <div class='p-2'>
+                        <button class='btn btn-secondary' id='btn-geo-file-clear' type='button'>Clear</button>
+                    </div>
+                    <div class='p-2 spinner-border geo-spinner' role='status'>
+                        <span class='sr-only'>Loading...</span>
+                    </div>
+                </form>
+                <button class='btn btn-primary' id='btn-geo-start'>
+                    <i class="fa fa-play"></i>
+                    <span class='hidden-xs'>Start</span>
+                </button>
+            </div>
         </div>
     </div>
 </div>

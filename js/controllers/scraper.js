@@ -28,7 +28,7 @@ exports.getTXT = async (req, res) => {
   }
 };
 
-exports.getCSV = async (req, res) => {
+exports.getJSON = async (req, res) => {
   const { threadId } = req.params;
   if (!threadId) {
     res.writeHead(400).end();

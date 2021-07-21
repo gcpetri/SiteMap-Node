@@ -4,9 +4,12 @@
     <body>
         <!-- partials -->
         <%- include('./partials/ribbon.ejs') %>
-        <%- include('./partials/nav.ejs') %>
-        <%- include('./partials/main.ejs') %>
-        <%- include('./partials/geo-section.ejs') %>
+        <div class='row bg-dark'>
+            <%- include('./partials/nav.ejs') %>
+            <%- include('./partials/main.ejs') %>
+            <%- include('./partials/geo-section.ejs') %>
+            <%- include('./partials/info-section.ejs') %>
+        </div>
         <%- include('./partials/toast.ejs') %>
         <!-- scripts -->
         <%- include('./partials/scripts.ejs') %>

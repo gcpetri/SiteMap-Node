@@ -80,7 +80,21 @@ exports.getDocxText = async (filePath) => {
 // ------ regex methods -------
 exports.regexFromText = async (regex, tags, text) => {
   const re = new RegExpMatchAll(regex, tags);
-  return text.matchAll(re);
+  const matches = await text.matchAll(re);
+  if (matches.length === 0) return [];
+  return exports.flatenMatches(matches);
+};
+
+exports.flatenMatches = async (matches) => {
+  const flatMatches = [];
+  await Promise.all(matches.map(async (match) => {
+    if (Array.isArray(match)) {
+      flatMatches.push(...match);
+    } else {
+      flatMatches.push(match);
+    }
+  }));
+  return flatMatches;
 };
 
 // ------- !IMPORTANT to free server disk space ---------

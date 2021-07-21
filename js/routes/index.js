@@ -1,3 +1,6 @@
+const { infoVariables } = require('../library/infoVariables');
+
 exports.homepage = (req, res) => {
-    res.render('index');
-}
+  const localVariables = { infoVariables };
+  res.render('index', { localVariables });
+};

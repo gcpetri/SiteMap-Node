@@ -1,0 +1,9 @@
+<div class='info-body bg-light col-sm-10' id='info-section'>
+    <div class='container'>
+        <h4>Common Regular Expression</h4>
+        <% Object.entries(localVariables.infoVariables.commonVariables).forEach(([key, value]) => { %>
+            <span><%= key %></span>
+            <span><%= value.toString(); %></span>
+        <% }); %>
+    </div>
+</div>

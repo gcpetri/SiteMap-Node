@@ -183,18 +183,20 @@ SiteMapHome.validateFileName = async (fileName) => {
     $('.toast-container').append(SiteMapHome.getToast('Warning', 'This file would not be scraped due to File Type restrictions'));
   }
   const fileIncludes = await SiteMapHome.getFileIncludes(fileName);
-  if (fileIncludes.length !== 0 && !fileIncludes.includes(fileName)) {
+  if (fileIncludes.length === 0) return;
+  const re = new RegExp(fileIncludes, $('#case-sensitive-checkbox[type=checkbox]').is(':checked') ? 'g' : 'ig');
+  if (!re.test(fileName)) {
     $('.toast-container').append(SiteMapHome.getToast('Warning', 'This file would not be scraped due to File Includes restrictions'));
   }
 };
 
 // ---- scraper helpers ----
-SiteMapHome.getCSV = async (threadId) => {
+SiteMapHome.getJSON = async (threadId) => {
   try {
-    window.open(`http://localhost:8080/api/scraper/csv/${threadId}`);
+    window.open(`http://localhost:8080/api/scraper/json/${threadId}`);
   } catch (err) {
     console.info(err);
-    console.info('could not retrieve csv file');
+    console.info('could not retrieve json file');
   }
 };
 
@@ -220,7 +222,7 @@ SiteMapHome.startScraperWorker = async (threadId, btn, originalColor) => {
       $('.scraper-spinner').css('visibility', 'hidden');
       worker.terminate();
       $('.toast-container').append(SiteMapHome.getToast('Success', 'file scraper completed'));
-      await SiteMapHome.getCSV(threadId);
+      await SiteMapHome.getJSON(threadId);
       await SiteMapHome.getTXT(threadId);
     }
   };
@@ -232,7 +234,7 @@ SiteMapHome.startScraperWorker = async (threadId, btn, originalColor) => {
     $(btn).attr('disabled', false);
     $('.scraper-spinner').css('visibility', 'hidden');
     $('.toast-container').append(SiteMapHome.getToast('Error', 'file scraper received an error'));
-    await SiteMapHome.getCSV(threadId);
+    await SiteMapHome.getJSON(threadId);
     await SiteMapHome.getTXT(threadId);
   };
 };
@@ -280,9 +282,53 @@ SiteMapHome.postStartScraper = async (filePath) => {
   return threadId;
 };
 
+// ---- geo helpers ----
+SiteMapHome.startGeoScraper = async (filePath) => {
+  const requestBody = {
+    filePath,
+  };
+  const res = await fetch('/api/geo/start', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestBody),
+  });
+  const response = await res.json();
+  const { kmlFileName } = response;
+  const { error } = response;
+  if (error) {
+    throw new Error(error);
+  }
+  return kmlFileName;
+};
+
+SiteMapHome.geoUpload = async (formData) => {
+  const res = await fetch('/api/geo/upload', {
+    method: 'POST',
+    headers: {
+      contentType: false,
+    },
+    body: formData,
+  });
+  const result = await res.json();
+  const { filePath } = result;
+  return filePath;
+};
+
+SiteMapHome.getKML = async (fileName) => {
+  try {
+    window.open(`http://localhost:8080/api/geo/kml/${fileName}`);
+  } catch (err) {
+    console.info(err);
+    console.info('could not retrieve kml file');
+  }
+};
+
 // === run initially ===
 $(() => {
   $('.scraper-spinner').css('visibility', 'hidden');
+  $('.geo-spinner').css('visibility', 'hidden');
   // initialize boostrap tooltips
   $('[data-toggle="tooltip"]').tooltip();
   // toasts
@@ -467,6 +513,54 @@ $(() => {
       $(this).css('background-color', originalColor);
       $(this).attr('disabled', false);
       $('.scraper-spinner').css('visibility', 'hidden');
+      console.info(`ERROR: ${err}`);
+      $('.toast-container').append(SiteMapHome.getToast('Error', err.message));
+    }
+  });
+
+  // nav bar
+  $('#btn-main-nav').on('click', async () => {
+    $('.main').css('display', 'flex');
+    $('#info-section').css('display', 'none');
+    $('#geo-section').css('display', 'none');
+  });
+  $('#btn-geo-nav').on('click', async () => {
+    $('.main').css('display', 'none');
+    $('#info-section').css('display', 'none');
+    $('#geo-section').css('display', 'flex');
+  });
+  $('#btn-info-nav').on('click', async () => {
+    $('.main').css('display', 'none');
+    $('#info-section').css('display', 'flex');
+    $('#geo-section').css('display', 'none');
+  });
+
+  // eslint-disable-next-line func-names
+  $('#btn-geo-start').on('click', async function (e) {
+    e.preventDefault();
+    const file = $('#geo-file')[0].files[0];
+    if (!file) {
+      $('.toast-container').append(SiteMapHome.getToast('Error', 'please select a file first'));
+      return;
+    }
+    const originalColor = $(this).css('background-color');
+    $(this).css('background-color', '#eee');
+    $(this).attr('disabled', true);
+    $('.geo-spinner').css('visibility', 'visible');
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const filePath = await SiteMapHome.geoUpload(formData);
+      const fileName = await SiteMapHome.startGeoScraper(filePath);
+      await SiteMapHome.getKML(fileName);
+      $(this).css('background-color', originalColor);
+      $(this).attr('disabled', true);
+      $('.geo-spinner').css('visibility', 'hidden');
+      $('.toast-container').append(SiteMapHome.getToast('Success', 'successfully generated kml file'));
+    } catch (err) {
+      $(this).css('background-color', originalColor);
+      $(this).attr('disabled', true);
+      $('.geo-spinner').css('visibility', 'hidden');
       console.info(`ERROR: ${err}`);
       $('.toast-container').append(SiteMapHome.getToast('Error', err.message));
     }

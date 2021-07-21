@@ -43,7 +43,28 @@ const scraperOptions = multer({
   },
 });
 
+const geoOptions = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, TMP_STORAGE_PATH);
+    },
+    filename: (req, file, cb) => {
+      cb(null, file.originalname);
+    },
+  }),
+  limits: {
+    fileSize: 1000 * 1000,
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.json$/)) {
+      return cb(new Error('Please upload .csv file'));
+    }
+    return cb(undefined, true);
+  },
+});
+
 module.exports = {
   viewerOptions,
   scraperOptions,
+  geoOptions,
 };

@@ -2,10 +2,11 @@
 const express = require('express');
 const path = require('path');
 const logger = require('./js/utils/logger');
-const mutlerUtil = require('./js/utils/multer');
+const multerUtil = require('./js/utils/multer');
 
 const viewerController = require('./js/controllers/viewer');
 const scraperController = require('./js/controllers/scraper');
+const geoController = require('./js/controllers/geo');
 
 // === globals ===
 const PORT = process.env.PORT || 8080;
@@ -26,14 +27,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '/public')));
 
 // === api endpoints ===
-const previewFileUpload = mutlerUtil.viewerOptions;
-const scraperFileUpload = mutlerUtil.scraperOptions;
+const previewFileUpload = multerUtil.viewerOptions;
+const scraperFileUpload = multerUtil.scraperOptions;
+const geoFileUpload = multerUtil.geoOptions;
 app.post('/api/viewer', previewFileUpload.single('file'), viewerController.loadFile);
 app.post('/api/scraper/upload', scraperFileUpload.single('file'), scraperController.verifyFileUpload);
 app.post('/api/scraper/start', scraperController.scraperMain);
 app.get('/api/scraper/status/:threadId', scraperController.getStatus);
-app.get('/api/scraper/csv/:threadId', scraperController.getCSV);
+app.get('/api/scraper/json/:threadId', scraperController.getJSON);
 app.get('/api/scraper/txt/:threadId', scraperController.getTXT);
+app.post('/api/geo/upload', geoFileUpload.single('file'), geoController.verifyUpload);
+app.post('/api/geo/start', geoController.geoMain);
+app.get('/api/geo/kml/:fileName', geoController.getKML);
 
 // === route middlewares ===
 app.use('/home', indexRouter.homepage);

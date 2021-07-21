@@ -9,7 +9,7 @@ const scraperService = require('../services/scraper');
 
 const appendFile = promisify(fs.appendFile);
 
-const CSV_FILE_NAME = path.join(__dirname, '..', '..', 'logs', 'SiteMap_matches_log_');
+const JSON_FILE_NAME = path.join(__dirname, '..', '..', 'logs', 'SiteMap_matches_log_');
 const ERROR_LOG_NAME = path.join(__dirname, '..', '..', 'logs', 'error_log_');
 const TMP_STORAGE_PATH = path.join(__dirname, '..', '..', 'tmp');
 
@@ -57,13 +57,13 @@ const handleFile = async (entryName, tags, regex) => {
 
 const scrapeZip = async (filePath, fileIncludes, folderIncludes, fileTypes, tags, regex) => {
   numFilesScraped = 0;
-  const csvFileName = `${CSV_FILE_NAME}${Date.now()}.csv`;
+  const jsonFileName = `${JSON_FILE_NAME}${Date.now()}.json`;
   const errFileName = `${ERROR_LOG_NAME}${Date.now()}.txt`;
-  await appendFile(csvFileName, `${filePath},\nFile Name,Matches\n`);
   await appendFile(errFileName, `${filePath},\nScraping Errors\n`);
   // eslint-disable-next-line new-cap
   const zip = new StreamZip.async({ file: filePath });
   const entries = await zip.entries();
+  const jsonData = {};
   await Promise.all(Object.values(entries).map(async (entry) => {
     let fileName = '';
     if (path.dirname(entry.name) !== '.') {
@@ -83,15 +83,17 @@ const scrapeZip = async (filePath, fileIncludes, folderIncludes, fileTypes, tags
       if ((matches?.length ?? 0) === 0) {
         throw new Error('no matches found');
       }
-      await appendFile(csvFileName, `${entry.name},${matches.toString()}\n`);
+      logger.info(matches);
+      jsonData[entry.name] = matches;
     } catch (err) {
       await appendFile(errFileName, `${entry.name},${err.message}\n`);
     }
     await viewerService.removeFile(path.join(TMP_STORAGE_PATH, fileName));
   }));
+  await appendFile(jsonFileName, JSON.stringify(jsonData, null, 4));
   await zip.close();
   await viewerService.removeFile(filePath);
-  parentPort.postMessage([numFilesScraped, statusTypes[2], csvFileName, errFileName]);
+  parentPort.postMessage([numFilesScraped, statusTypes[2], jsonFileName, errFileName]);
 };
 
 const startScraperZip = async () => {

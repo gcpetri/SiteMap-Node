@@ -2752,25 +2752,26 @@ textarea.form-control-lg {
   text-align: center; }
 
 .nav-section {
-  padding: 0; }
-  .nav-section .nav-body {
-    background-color: #343E3D;
-    position: absolute;
+  height: 100%;
+  padding-right: 0 !important;
+  /* Change the link color on hover */ }
+  .nav-section ul {
+    list-style-type: none;
+    color: white;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    text-align: center; }
+  .nav-section li {
     display: block;
-    left: 0;
-    height: 100%; }
-    .nav-section .nav-body .nav-item {
-      height: 70px; }
-      .nav-section .nav-body .nav-item a {
-        height: 100%; }
-      .nav-section .nav-body .nav-item i {
-        padding-top: 12px;
-        font-size: 30px;
-        color: whitesmoke !important; }
-    .nav-section .nav-body .nav-item:hover {
-      background-color: #aaa; }
-      .nav-section .nav-body .nav-item:hover i {
-        color: #333 !important; }
+    color: white;
+    text-decoration: none;
+    width: 100%;
+    padding: 30%; }
+  .nav-section li:hover {
+    background-color: #666;
+    color: white; }
 
 .viewer {
   padding-top: 12px;
@@ -2830,8 +2831,18 @@ textarea.form-control-lg {
     .toast-container .toast .toast-body {
       background-color: inherit !important; }
 
+.geo-body {
+  padding-top: 20px;
+  display: none;
+  text-align: center;
+  min-height: 593px; }
+  .geo-body .geo-spinner {
+    height: 15px;
+    width: 15px; }
+
 body {
-  color: #555 !important; }
+  color: #555 !important;
+  overflow-x: hidden; }
   body .code {
     color: #fd3535 !important;
     padding-left: 5px !important;
