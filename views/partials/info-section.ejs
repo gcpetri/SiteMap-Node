@@ -1,9 +1,52 @@
 <div class='info-body bg-light col-sm-10' id='info-section'>
     <div class='container'>
-        <h4>Common Regular Expression</h4>
-        <% Object.entries(localVariables.infoVariables.commonVariables).forEach(([key, value]) => { %>
-            <span><%= key %></span>
-            <span><%= value.toString(); %></span>
-        <% }); %>
+        <div class='text-viewer-title'>
+            <h4>More Information</h4>
+        </div>
+        <h6 style='text-align: left;'>Common Regular Expressions</h6>
+        <div class='d-flex flex-column common-regular-expressions shadow'>
+            <div class='p-2'>
+                <div class='d-flex flex-row'>
+                    <div class='col col-lg-9 text-left light-text'>
+                        <span>Regular Expression</span>
+                    </div>
+                    <div class='col-md-auto text-right light-text'>
+                        <span>Matches</span>
+                    </div>
+                </div>
+            </div>
+            <% localVariables.infoVariables.commonRegex.forEach((entry) => { %>
+            <div class='p-2 shadow regular-expression-category'>
+                <div class='d-flex flex-row'>
+                    <div class='col col-lg-9 text-left'>
+                        <span><%= entry.name %></span>
+                    </div>
+                </div>
+                <% entry.expressions.forEach((expression) => { %>
+                <div class='d-flex flex-row info-row align-items-center'>
+                    <div class='col col-lg-9'>
+                        <div class='row reg-expression align-items-center'>
+                            <div class='col text-left'>
+                                <span><%= expression.reg %></span>
+                            </div>
+                            <div class='col-sm-1 text-right'>
+                                <button class='btn btn-secondary' style='height: 100%;' onclick='copyToClipboard(this)'>
+                                    <i class='fa fa-clipboard'></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='col-md-auto align-self-end'>
+                        <% expression.matches.forEach((match) => { %>
+                        <div class='d-flex flex-row'>
+                            <span class='reg-matches'><%= match %></span>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+            <% }); %>
+        </div>
     </div>
 </div>

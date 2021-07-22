@@ -2840,6 +2840,39 @@ textarea.form-control-lg {
     height: 15px;
     width: 15px; }
 
+.info-body {
+  display: none;
+  text-align: center;
+  min-height: 593px;
+  padding-top: 20px; }
+  .info-body .common-regular-expressions {
+    border-radius: 10px;
+    padding: 3px;
+    max-height: 400px;
+    overflow-y: scroll; }
+    .info-body .common-regular-expressions .reg-expression {
+      background-color: #eee;
+      border-radius: 6px;
+      margin-top: 1px;
+      margin-bottom: 1px; }
+    .info-body .common-regular-expressions .regular-expression-category {
+      border-radius: 10px;
+      margin: 8px; }
+    .info-body .common-regular-expressions .reg-matches {
+      text-overflow: wrap;
+      background-color: #efefef;
+      padding-top: 2px;
+      padding-bottom: 2px;
+      padding-left: 4px;
+      padding-right: 4px;
+      margin: 2px;
+      border-radius: 3px; }
+    .info-body .common-regular-expressions .info-row {
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      margin: 3px; }
+
 body {
   color: #555 !important;
   overflow-x: hidden; }
