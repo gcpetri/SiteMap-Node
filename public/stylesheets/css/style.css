@@ -2847,8 +2847,9 @@ textarea.form-control-lg {
   padding-top: 20px; }
   .info-body .common-regular-expressions {
     border-radius: 10px;
-    padding: 3px;
+    padding: 8px;
     max-height: 400px;
+    margin: 20px;
     overflow-y: scroll; }
     .info-body .common-regular-expressions .reg-expression {
       background-color: #eee;
@@ -2872,6 +2873,16 @@ textarea.form-control-lg {
       border-radius: 5px;
       border: 1px solid #ddd;
       margin: 3px; }
+  .info-body .contact-section {
+    border-radius: 10px;
+    padding: 8px;
+    max-height: 400px;
+    margin: 20px; }
+
+.nav-section {
+  max-height: 100px; }
+  .nav-section ul li {
+    padding: 4px; }
 
 body {
   color: #555 !important;

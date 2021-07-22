@@ -79,17 +79,35 @@ SiteMapHome.removeInputButton = async (context) => {
   const parent = $(context).parent();
   if ($(parent).attr('id') === 'list-group-regex-input') {
     const strNum = $('#num-input-regex-input').text();
-    $('#num-input-regex-input').text((parseInt(strNum, 10) - 1).toString());
+    const newNum = parseInt(strNum, 10) - 1;
+    if (newNum >= 0) $('#num-input-regex-input').text(newNum.toString());
     $(context).remove();
     await SiteMapHome.refreshViewer();
+    await window.CookieClass.setCookie(
+      window.CookieClass.cookieEnum[1],
+      await SiteMapHome.getRegex(),
+      window.CookieClass.MAX_DAYS,
+    );
   } else if ($(parent).attr('id') === 'list-group-file-includes') {
     const strNum = $('#num-input-file-includes').text();
-    $('#num-input-file-includes').text((parseInt(strNum, 10) - 1).toString());
+    const newNum = parseInt(strNum, 10) - 1;
+    if (newNum >= 0) $('#num-input-file-includes').text(newNum.toString());
     $(context).remove();
+    await window.CookieClass.setCookie(
+      window.CookieClass.cookieEnum[2],
+      await SiteMapHome.getFileIncludes(),
+      window.CookieClass.MAX_DAYS,
+    );
   } else if ($(parent).attr('id') === 'list-group-folder-includes') {
     const strNum = $('#num-input-folder-includes').text();
-    $('#num-input-folder-includes').text((parseInt(strNum, 10) - 1).toString());
+    const newNum = parseInt(strNum, 10) - 1;
+    if (newNum >= 0) $('#num-input-folder-includes').text(newNum.toString());
     $(context).remove();
+    await window.CookieClass.setCookie(
+      window.CookieClass.cookieEnum[3],
+      await SiteMapHome.getFolderIncludes(),
+      window.CookieClass.MAX_DAYS,
+    );
   }
 };
 SiteMapHome.getInputButton = (str) => {
@@ -136,6 +154,19 @@ SiteMapHome.getFileTypes = async () => {
   if ($('#input-docx-file').is(':checked')) fileTypeList.push('.docx');
   if ($('#input-txt-file').is(':checked')) fileTypeList.push('.txt');
   return fileTypeList;
+};
+
+SiteMapHome.updateFileTypes = async () => {
+  const fileTypeList = await SiteMapHome.getFileTypes();
+  let fileTypeStr = '';
+  fileTypeList.forEach((ft, idx) => {
+    fileTypeStr += `${ft}${idx < fileTypeList.length - 1 ? '|' : ''}`;
+  });
+  await window.CookieClass.setCookie(
+    window.CookieClass.cookieEnum[0],
+    fileTypeStr,
+    window.CookieClass.MAX_DAYS,
+  );
 };
 
 SiteMapHome.postFileView = async (formData) => {
@@ -389,6 +420,12 @@ $(() => {
     const strNum = $('#num-input-regex-input').text();
     $('#num-input-regex-input').text((parseInt(strNum, 10) + 1).toString());
     await SiteMapHome.refreshViewer();
+    await window.CookieClass.setCookie(
+      window.CookieClass.cookieEnum[1],
+      await SiteMapHome.getRegex(),
+      window.CookieClass.MAX_DAYS,
+    );
+    // console.info(await window.CookieClass.getCookie(window.CookieClass.cookieEnum[1]));
   });
 
   // eslint-disable-next-line func-names
@@ -405,11 +442,16 @@ $(() => {
       const strNum = $('#num-input-regex-input').text();
       $('#num-input-regex-input').text((parseInt(strNum, 10) + 1).toString());
       await SiteMapHome.refreshViewer();
+      await window.CookieClass.setCookie(
+        window.CookieClass.cookieEnum[1],
+        await SiteMapHome.getRegex(),
+        window.CookieClass.MAX_DAYS,
+      );
     }
   });
 
   // add a file include input
-  $('#btn-add-file-includes').on('click', (e) => {
+  $('#btn-add-file-includes').on('click', async (e) => {
     e.preventDefault();
     const inputStr = $('#input-file-includes').val();
     if (inputStr.length === 0) {
@@ -421,10 +463,15 @@ $(() => {
     $('#list-group-file-includes').append(SiteMapHome.getInputButton(goodInputStr));
     const strNum = $('#num-input-file-includes').text();
     $('#num-input-file-includes').text((parseInt(strNum, 10) + 1).toString());
+    await window.CookieClass.setCookie(
+      window.CookieClass.cookieEnum[2],
+      await SiteMapHome.getFileIncludes(),
+      window.CookieClass.MAX_DAYS,
+    );
   });
 
   // eslint-disable-next-line func-names
-  $('#input-file-includes').on('keydown', function (e) {
+  $('#input-file-includes').on('keydown', async function (e) {
     if (e.keyCode === 13) {
       const inputStr = $(this).val();
       if (inputStr.length === 0) {
@@ -436,11 +483,16 @@ $(() => {
       $('#list-group-file-includes').append(SiteMapHome.getInputButton(goodInputStr));
       const strNum = $('#num-input-file-includes').text();
       $('#num-input-file-includes').text((parseInt(strNum, 10) + 1).toString());
+      await window.CookieClass.setCookie(
+        window.CookieClass.cookieEnum[2],
+        await SiteMapHome.getFileIncludes(),
+        window.CookieClass.MAX_DAYS,
+      );
     }
   });
 
   // add a folder include input
-  $('#btn-add-folder-includes').on('click', (e) => {
+  $('#btn-add-folder-includes').on('click', async (e) => {
     e.preventDefault();
     const inputStr = $('#input-folder-includes').val();
     if (inputStr.length === 0) {
@@ -452,10 +504,15 @@ $(() => {
     $('#list-group-folder-includes').append(SiteMapHome.getInputButton(goodInputStr));
     const strNum = $('#num-input-folder-includes').text();
     $('#num-input-folder-includes').text((parseInt(strNum, 10) + 1).toString());
+    await window.CookieClass.setCookie(
+      window.CookieClass.cookieEnum[3],
+      await SiteMapHome.getFolderIncludes(),
+      window.CookieClass.MAX_DAYS,
+    );
   });
 
   // eslint-disable-next-line func-names
-  $('#input-folder-includes').on('keydown', function (e) {
+  $('#input-folder-includes').on('keydown', async function (e) {
     if (e.keyCode === 13) {
       const inputStr = $(this).val();
       if (inputStr.length === 0) {
@@ -467,6 +524,11 @@ $(() => {
       $('#list-group-folder-includes').append(SiteMapHome.getInputButton(goodInputStr));
       const strNum = $('#num-input-folder-includes').text();
       $('#num-input-folder-includes').text((parseInt(strNum, 10) + 1).toString());
+      await window.CookieClass.setCookie(
+        window.CookieClass.cookieEnum[3],
+        await SiteMapHome.getFolderIncludes(),
+        window.CookieClass.MAX_DAYS,
+      );
     }
   });
 
@@ -565,4 +627,6 @@ $(() => {
       $('.toast-container').append(SiteMapHome.getToast('Error', err.message));
     }
   });
+
+  window.CookieClass.fetchAllCookies();
 });

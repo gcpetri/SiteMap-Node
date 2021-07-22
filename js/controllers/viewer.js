@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
-const viewerService = require('../services/viewer');
-const logger = require('../utils/logger');
+let viewerService = require('../services/viewer');
+// const logger = require('../utils/logger');
 
 const exists = promisify(fs.exists);
 
@@ -14,8 +14,8 @@ exports.loadFile = async (req, res) => {
   let hasFile = false;
   try {
     const { file } = req;
-    if (!file) {
-      throw new Error('no field file');
+    if (!file?.path) {
+      throw new Error('no file provided');
     } else if (!(await exists(file.path))) {
       throw new Error('file upload failed');
     }
@@ -31,9 +31,13 @@ exports.loadFile = async (req, res) => {
     await viewerService.removeFile(filePath);
     res.status(200).json(response);
   } catch (err) {
-    logger.info('got error');
-    response.fileData = '';
+    response.error = err.message;
     if (hasFile) await viewerService.removeFile(req.file.path);
     res.status(400).json(response);
   }
+};
+
+// for testing
+exports.setViewerService = (_viewerService) => {
+  viewerService = _viewerService;
 };

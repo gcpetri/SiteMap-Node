@@ -2,8 +2,8 @@
     <div class='container'>
         <div class='text-viewer-title'>
             <h4>More Information</h4>
-        </div>
-        <h6 style='text-align: left;'>Common Regular Expressions</h6>
+        </div></br>
+        <h5>Common Regular Expressions</h5>
         <div class='d-flex flex-column common-regular-expressions shadow'>
             <div class='p-2'>
                 <div class='d-flex flex-row'>
@@ -47,6 +47,55 @@
                 <% }); %>
             </div>
             <% }); %>
+        </div>
+        <h5>How to Use Site Map</h5>
+        <div class='d-flex flex-column contact-section shadow'>
+            <div class='p-2'>
+                <p>
+                    <i class='fa fa-video-camera'></i></br>
+                    Quick tutorial
+                </p>
+                <a href='<%= localVariables.infoVariables.howTo.videoLink %>' target='_blank'>
+                    <%= localVariables.infoVariables.howTo.videoLink %>
+                </a>
+            </div>
+            <div class='p-2'>
+                <p>
+                    <i class='fa fa-file-text'></i></br>
+                    Read the Docs
+                </p>
+                <a href='<%= localVariables.infoVariables.howTo.docsLink %>' target='_blank'>
+                    <%= localVariables.infoVariables.howTo.docsLink %>
+                </a>
+            </div>
+        </div>
+        <h5>Contact</h5>
+        <div class='d-flex flex-column contact-section shadow'>
+            <div class='p-2'>
+                <i class='fa fa-user'></i></br>
+                <span class='light-text'>Created by</span>
+                <p>
+                    <strong><%= localVariables.infoVariables.contact.name %></strong>
+                </p>
+            </div>
+            <div class='p-2'>
+                <i class='fa fa-envelope'></i></br>
+                <span class='light-text'>For questions or issues email </span>
+                <p>
+                    <a href='<%= localVariables.infoVariables.contact.email %>' target='_blank'>
+                        <%= localVariables.infoVariables.contact.email %>
+                    </a>
+                </p>
+            </div>
+            <div class='p-2'>
+                <i class='fa fa-github'></i></br>
+                <span class='light-text'>Use the development version </span>
+                <p>
+                    <a href='<%= localVariables.infoVariables.contact.git %>' target='_blank'>
+                        <%= localVariables.infoVariables.contact.git %>
+                    </a>
+                </p>
+            </div>
         </div>
     </div>
 </div>

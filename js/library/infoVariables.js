@@ -32,6 +32,15 @@ const infoVariables = {
       }],
     },
   ],
+  contact: {
+    name: 'Gregory Petri',
+    email: 'gcpetri@outlook.com',
+    git: 'https://github.com/gcpetri/SiteMap-Node',
+  },
+  howTo: {
+    videoLink: '',
+    docsLink: 'https://github.com/gcpetri/SiteMap-Node#readme',
+  },
 };
 
 module.exports = {
