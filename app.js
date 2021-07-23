@@ -41,12 +41,10 @@ app.post('/api/geo/start', geoController.geoMain);
 app.get('/api/geo/kml/:fileName', geoController.getKML);
 
 // === route middlewares ===
-app.use('/home', indexRouter.homepage);
+// app.use('/home', indexRouter.homepage);
 
 // === page not found ===
-app.use('/', (req, res) => {
-  res.status(401).send('page not found');
-});
+app.use('/', indexRouter.homepage);
 
 // === start server ===
 const listener = app.listen(PORT, (err) => {
