@@ -41,6 +41,6 @@
   "scripts": {
     "start": "node app.js",
     "sass": "node-sass public/stylesheets/scss/body.scss public/stylesheets/css/style.css",
-    "test-backend": "node ./node_modules/mocha/bin/_mocha --recursive tests/backend --exit"
+    "test-backend": "node ./node_modules/mocha/bin/_mocha --recursive tests/backend --timeout 10000 --exit"
   }
 }

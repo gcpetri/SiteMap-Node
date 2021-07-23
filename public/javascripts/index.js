@@ -246,7 +246,7 @@ SiteMapHome.startScraperWorker = async (threadId, btn, originalColor) => {
   worker.onmessage = async (e) => {
     $('#num-files-scraped').text(e.data[0]);
     $('#scraper-state').text(e.data[1]);
-    // console.info(`Message received from worker ${e.data}`);
+    console.info(`Message received from worker ${e.data}`);
     if (e.data[1] === 'done' || e.data[1] === 'error') {
       $(btn).css('background-color', originalColor);
       $(btn).attr('disabled', false);
@@ -267,6 +267,9 @@ SiteMapHome.startScraperWorker = async (threadId, btn, originalColor) => {
     $('.toast-container').append(SiteMapHome.getToast('Error', 'file scraper received an error'));
     await SiteMapHome.getJSON(threadId);
     await SiteMapHome.getTXT(threadId);
+  };
+  worker.onmessageerror = async (e) => {
+    console.info(e);
   };
 };
 

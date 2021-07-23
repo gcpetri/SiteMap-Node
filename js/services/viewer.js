@@ -14,7 +14,7 @@ const unlink = promisify(fs.unlink);
 // ------- pdf to text methods --------
 exports.pdfToText = (filePath) => new Promise((resolve) => {
   pdftotext.pdfToText(filePath, (err, data) => {
-    if (err) throw err;
+    if (err) resolve('');
     resolve(data);
   });
 });
@@ -25,9 +25,7 @@ exports.backupPdfToText = async (filePath) => {
   const awaitParser = new Promise((resolve) => {
     new pdfreader.PdfReader().parseFileItems(filePath, (err, item) => {
       if (item) {
-        if (item.page) {
-          logger.info(`PAGE: ${item.page}`);
-        } else if (item.text) {
+        if (item.text) {
           masterString += item.text;
         }
       } else {
@@ -55,10 +53,10 @@ exports.backupDocxToText = async (filePath) => new Promise((resolve) => {
 // -------- viewer methods ----------
 exports.getPdfText = async (filePath) => {
   let text = await exports.pdfToText(filePath);
-  if (text.length === 0) {
+  if (text.trim().length === 0) {
     logger.info('trying second pdf converter');
     text = await exports.backupPdfToText(filePath);
-    if (text.length === 0) {
+    if (text.trim().length === 0) {
       throw new Error('could not convert pdf to text');
     }
   }
@@ -67,10 +65,10 @@ exports.getPdfText = async (filePath) => {
 
 exports.getDocxText = async (filePath) => {
   let text = await exports.docxToText(filePath);
-  if (text.length === 0) {
+  if (text.trim().length === 0) {
     logger.info('trying second docx converter');
     text = await exports.backupDocxToText(filePath);
-    if (text.length === 0) {
+    if (text.trim().length === 0) {
       throw new Error('could not convert docx to text');
     }
   }
@@ -79,7 +77,9 @@ exports.getDocxText = async (filePath) => {
 
 // ------ regex methods -------
 exports.regexFromText = async (regex, tags, text) => {
+  if ((text?.length ?? 0) === 0) return [];
   const re = new RegExpMatchAll(regex, tags);
+  logger.info(re);
   const matches = await text.matchAll(re);
   if (matches.length === 0) return [];
   return exports.flatenMatches(matches);

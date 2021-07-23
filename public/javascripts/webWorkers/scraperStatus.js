@@ -14,16 +14,16 @@ const getScraperStatus = async (threadId) => {
       },
     });
     const result = await res.json();
-    // console.info(JSON.stringify(result));
+    console.info(JSON.stringify(result));
     // eslint-disable-next-line prefer-destructuring
     lastNumFilesScraped = result[0];
-    if (result[0] && result[1]) {
-      postMessage([result[0], result[1]]);
-    }
+    postMessage([result[0], result[1]]);
     await new Promise((resolve) => {
       setTimeout(() => { resolve(); }, DELAY_PER_STATUS_REQUEST);
     });
-    if (result[1] === 'done' || result[1] === 'error') return;
+    if (result[1] === 'done' || result[1] === 'error') {
+      return;
+    }
     await getScraperStatus(threadId);
   } catch (err) {
     console.info(err);
