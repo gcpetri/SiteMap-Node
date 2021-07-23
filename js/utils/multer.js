@@ -13,7 +13,7 @@ const viewerOptions = multer({
     },
   }),
   limits: {
-    fileSize: 1000 * 1000,
+    fileSize: 1000 * 1000 * 10,
   },
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.(pdf|txt|docx)$/)) {
@@ -33,7 +33,7 @@ const scraperOptions = multer({
     },
   }),
   limits: {
-    fileSize: 1000 * 1000 * 100,
+    fileSize: 1000 * 1000 * 1000,
   },
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.zip$/)) {
