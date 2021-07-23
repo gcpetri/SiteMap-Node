@@ -224,7 +224,7 @@ SiteMapHome.validateFileName = async (fileName) => {
 // ---- scraper helpers ----
 SiteMapHome.getJSON = async (threadId) => {
   try {
-    window.open(`http://localhost:8080/api/scraper/json/${threadId}`);
+    window.open(`/api/scraper/json/${threadId}`);
   } catch (err) {
     console.info(err);
     console.info('could not retrieve json file');
@@ -233,7 +233,7 @@ SiteMapHome.getJSON = async (threadId) => {
 
 SiteMapHome.getTXT = async (threadId) => {
   try {
-    window.open(`http://localhost:8080/api/scraper/txt/${threadId}`);
+    window.open(`/api/scraper/txt/${threadId}`);
   } catch (err) {
     console.info(err);
     console.info('could not retrieve txt file');
