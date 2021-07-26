@@ -13,7 +13,7 @@ const viewerOptions = multer({
     },
   }),
   limits: {
-    fileSize: 1000 * 1000 * 10,
+    fileSize: 1000 * 1000 * 30,
   },
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.(pdf|txt|docx)$/)) {

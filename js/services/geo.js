@@ -44,7 +44,7 @@ exports.makeKml = async (filePath, format) => {
   await appendFile(kmlFile, geoVariables.kmlHeader);
   await appendFile(kmlFile, `<name>${path.basename(kmlFile)}</name>`);
   await Promise.all(Object.entries(jsonData).map(async ([key, value]) => {
-    if ((value?.length ?? 0) === 0) return;
+    if (!value || value.length === 0) return;
     await exports.writeToKml(key, value.toString(), kmlFile, format);
   }));
   await appendFile(kmlFile, geoVariables.kmlFooter);

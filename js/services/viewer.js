@@ -77,7 +77,7 @@ exports.getDocxText = async (filePath) => {
 
 // ------ regex methods -------
 exports.regexFromText = async (regex, tags, text) => {
-  if ((text?.length ?? 0) === 0) return [];
+  if (!text || text.length === 0) return [];
   const re = new RegExpMatchAll(regex, tags);
   logger.info(re);
   const matches = await text.matchAll(re);

@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
 let viewerService = require('../services/viewer');
-// const logger = require('../utils/logger');
 
 const exists = promisify(fs.exists);
 
@@ -14,7 +13,7 @@ exports.loadFile = async (req, res) => {
   let hasFile = false;
   try {
     const { file } = req;
-    if (!file?.path) {
+    if (!file || !file.path) {
       throw new Error('no file provided');
     } else if (!(await exists(file.path))) {
       throw new Error('file upload failed');

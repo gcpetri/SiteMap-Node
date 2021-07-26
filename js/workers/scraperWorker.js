@@ -80,7 +80,7 @@ const scrapeZip = async (filePath, fileIncludes, folderIncludes, fileTypes, tags
     try {
       await zip.extract(entry.name, `${TMP_STORAGE_PATH}/${fileName}`);
       const matches = await handleFile(fileName, tags, regex);
-      if ((matches?.length ?? 0) === 0) {
+      if (!matches || matches.length === 0) {
         throw new Error('no matches found');
       }
       logger.info(matches);

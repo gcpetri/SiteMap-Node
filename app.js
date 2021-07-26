@@ -9,7 +9,7 @@ const scraperController = require('./js/controllers/scraper');
 const geoController = require('./js/controllers/geo');
 
 // === globals ===
-const PORT = process.env.PORT || 8080;
+const PORT = 3000;
 
 // === set the view routes ===
 const indexRouter = require('./js/routes/index');
@@ -39,9 +39,6 @@ app.get('/api/scraper/txt/:threadId', scraperController.getTXT);
 app.post('/api/geo/upload', geoFileUpload.single('file'), geoController.verifyUpload);
 app.post('/api/geo/start', geoController.geoMain);
 app.get('/api/geo/kml/:fileName', geoController.getKML);
-
-// === route middlewares ===
-// app.use('/home', indexRouter.homepage);
 
 // === page not found ===
 app.use('/', indexRouter.homepage);

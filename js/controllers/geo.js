@@ -20,7 +20,7 @@ exports.verifyUpload = async (req, res) => {
   const { file } = req;
   let hasFile = false;
   try {
-    if (!file) {
+    if (!file || !file.path) {
       throw new Error('no file provided');
     } else if (!(await exists(file.path))) {
       throw new Error('file upload failed');

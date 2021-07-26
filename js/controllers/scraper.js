@@ -108,12 +108,12 @@ exports.scraperMain = async (req, res) => {
     let { folderIncludes } = req.body;
     const { fileTypes } = req.body;
     const { tags } = req.body;
-    if ((filePath?.length ?? 0) === 0) {
+    if (!filePath || filePath.length === 0) {
       throw new Error('filePath argument empty or missing');
     }
-    if ((regex?.length ?? 0) === 0) {
+    if (!regex || regex.length === 0) {
       throw new Error('regex argument empty or missing');
-    } if ((fileTypes?.length ?? 0) === 0) {
+    } if (!fileTypes || fileTypes.length === 0) {
       throw new Error('fileTypes argument empty or missing');
     } if (tags !== 'ig' && tags !== 'g') {
       throw new Error('invalid regex tags');
