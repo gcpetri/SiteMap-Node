@@ -9,6 +9,15 @@
         </p>
         <div class='card'>
             <div class='card-body'>
+                <p>Goodinate Format</p>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="latLong" value="option1" checked/>
+                    <label class="form-check-label light-text" for="latLong">Latitue, Longitude (eg. N 29.45022, W -98.69648)</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="longLat" value="long-lat"/>
+                    <label class="form-check-label light-text" for="longLat">Longitude, Latutide (eg. W -98.69648, N 29.45022)</label>
+                </div></br>
                 <form id='geo-file-form' enctype='multipart/form-data' class='d-flex justify-content-center'>
                     <div class='p-2'>
                         <input type='file' class='form-control' id='geo-file' name='geoFile' accept='.json' style='margin-bottom: 6px;'/>

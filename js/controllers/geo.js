@@ -4,6 +4,7 @@ const { promisify } = require('util');
 const logger = require('../utils/logger');
 const viewerService = require('../services/viewer');
 const geoService = require('../services/geo');
+const scraperController = require('./scraper');
 
 const exists = promisify(fs.exists);
 const unlink = promisify(fs.unlink);
@@ -41,11 +42,14 @@ exports.geoMain = async (req, res) => {
     error: null,
   };
   const { filePath } = req.body;
+  const { format } = req.body;
+  logger.info(JSON.stringify(req.body));
   let hasFile = false;
   try {
+    await scraperController.auditLogs();
     if (await exists(filePath)) hasFile = true;
-    logger.info(`geoMain ${filePath}`);
-    response.kmlFileName = await geoService.makeKml(filePath);
+    logger.info(format);
+    response.kmlFileName = await geoService.makeKml(filePath, format);
     await unlink(filePath);
     res.status(200).json(response);
   } catch (err) {
@@ -62,16 +66,16 @@ exports.getKML = async (req, res) => {
     res.writeHead(400).end();
   }
   try {
-    logger.info(fileName);
+    // logger.info(fileName);
     const fileLogs = await readdir(LOG_FILE_PATH);
     let filePath = null;
     await Promise.all(fileLogs.map(async (file) => {
-      logger.info(file);
+      // logger.info(file);
       if (file === `${fileName}.kml`) {
         filePath = path.join(LOG_FILE_PATH, file);
       }
     }));
-    logger.info(filePath);
+    // logger.info(filePath);
     res.status(200);
     res.download(filePath);
   } catch (err) {

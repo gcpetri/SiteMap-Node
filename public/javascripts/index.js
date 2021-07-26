@@ -317,9 +317,10 @@ SiteMapHome.postStartScraper = async (filePath) => {
 };
 
 // ---- geo helpers ----
-SiteMapHome.startGeoScraper = async (filePath) => {
+SiteMapHome.startGeoScraper = async (filePath, format) => {
   const requestBody = {
     filePath,
+    format,
   };
   const res = await fetch('/api/geo/start', {
     method: 'POST',
@@ -614,9 +615,10 @@ $(() => {
     $('.geo-spinner').css('visibility', 'visible');
     const formData = new FormData();
     formData.append('file', file);
+    const format = $('#latLong').is(':checked') ? 'latLong' : 'longLat';
     try {
       const filePath = await SiteMapHome.geoUpload(formData);
-      const fileName = await SiteMapHome.startGeoScraper(filePath);
+      const fileName = await SiteMapHome.startGeoScraper(filePath, format);
       await SiteMapHome.getKML(fileName);
       $(this).css('background-color', originalColor);
       $(this).attr('disabled', true);

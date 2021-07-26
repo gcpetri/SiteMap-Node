@@ -86,7 +86,7 @@ const scrapeZip = async (filePath, fileIncludes, folderIncludes, fileTypes, tags
       logger.info(matches);
       jsonData[entry.name] = matches;
     } catch (err) {
-      await appendFile(errFileName, `${entry.name},${err.message}\n`);
+      await appendFile(errFileName, `${filePath},${err.message}\n`);
     }
     await viewerService.removeFile(path.join(TMP_STORAGE_PATH, fileName));
   }));
