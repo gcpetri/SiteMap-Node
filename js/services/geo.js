@@ -17,8 +17,7 @@ const switchGps = async (match) => {
 
 const getGpsCoord = async (key, point) => {
   const id = Math.floor(Math.random() * 5000);
-  const pointStr = `\n<Placemark id="${id}">\n\t<name>${key}</name>\n\t<Point><coordinates>${point},0</coordinates></Point>\n</Placemark>`;
-  return pointStr;
+  return `\n<Placemark id="${id}">\n\t<name>${key}</name>\n\t<Point><coordinates>${point},0</coordinates></Point>\n</Placemark>`;
 };
 
 exports.writeToKml = async (key, strValue, kmlFile, format) => {
@@ -28,7 +27,7 @@ exports.writeToKml = async (key, strValue, kmlFile, format) => {
     await Promise.all(matches.map(async (match) => {
       if (!match) return;
       let newMatch = match;
-      if (format === 'latLong') {
+      if (format === 'latLong' && !key.endsWith('.kmz')) { // .kmz is already in the correct format
         newMatch = await switchGps(match);
       }
       const strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');

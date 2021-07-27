@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
 let viewerService = require('../services/viewer');
+const scraperController = require('./scraper');
 
 const exists = promisify(fs.exists);
 
@@ -28,6 +29,7 @@ exports.loadFile = async (req, res) => {
       throw new Error('invalid file provided');
     }
     await viewerService.removeFile(filePath);
+    await scraperController.auditLogs();
     res.status(200).json(response);
   } catch (err) {
     response.error = err.message;

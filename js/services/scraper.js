@@ -1,7 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
+const parseKMZ = require('parse2-kmz');
 const viewerService = require('./viewer');
+const logger = require('../utils/logger');
 
 const readFile = promisify(fs.readFile);
 
@@ -33,4 +35,23 @@ exports.getRegexMatchesFromTxt = async (filePath, tags, regex) => {
     throw new Error(path.basename(filePath));
   }
   return viewerService.regexFromText(regex, tags, text);
+};
+
+exports.getDataFromKmz = async (filePath) => {
+  // KMZ To JSON From File
+  logger.info('get data from kmz');
+  const getJson = new Promise((resolve) => {
+    parseKMZ.toJson(filePath).then((results) => resolve(results));
+  });
+  const jsonData = await getJson;
+  const coordinates = [];
+  await Promise.all(jsonData.features.map(async (entry) => {
+    if (!entry || !entry.geometry) return;
+    const { geometry } = entry;
+    if (geometry.type === 'Point') {
+      coordinates.push(geometry.coordinates.toString());
+    }
+  }));
+  logger.info(JSON.stringify(jsonData));
+  return coordinates;
 };

@@ -153,6 +153,7 @@ SiteMapHome.getFileTypes = async () => {
   if ($('#input-pdf-file').is(':checked')) fileTypeList.push('.pdf');
   if ($('#input-docx-file').is(':checked')) fileTypeList.push('.docx');
   if ($('#input-txt-file').is(':checked')) fileTypeList.push('.txt');
+  if ($('#input-kmz-file').is(':checked')) fileTypeList.push('.kmz');
   return fileTypeList;
 };
 
@@ -353,7 +354,7 @@ SiteMapHome.geoUpload = async (formData) => {
 
 SiteMapHome.getKML = async (fileName) => {
   try {
-    window.open(`http://localhost:8080/api/geo/kml/${fileName}`);
+    window.open(`/api/geo/kml/${fileName}`);
   } catch (err) {
     console.info(err);
     console.info('could not retrieve kml file');
@@ -599,6 +600,13 @@ $(() => {
     $('.main').css('display', 'none');
     $('#info-section').css('display', 'flex');
     $('#geo-section').css('display', 'none');
+  });
+
+  $('#btn-geo-file-clear').on('click', async () => {
+    $('#geo-file').val('');
+    $('#btn-geo-start').attr('disabled', false);
+    $('#btn-geo-start').css('background-color', '#007bff');
+    $('.geo-spinner').css('visibility', 'hidden');
   });
 
   // eslint-disable-next-line func-names

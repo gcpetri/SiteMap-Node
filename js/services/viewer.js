@@ -79,7 +79,7 @@ exports.getDocxText = async (filePath) => {
 exports.regexFromText = async (regex, tags, text) => {
   if (!text || text.length === 0) return [];
   const re = new RegExpMatchAll(regex, tags);
-  logger.info(re);
+  // logger.info(re);
   const matches = await text.matchAll(re);
   if (matches.length === 0) return [];
   return exports.flatenMatches(matches);

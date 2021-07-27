@@ -46,6 +46,7 @@ CookieClass.fetchAllCookies = async () => {
   if (fileTypesList.includes('.pdf')) $('#input-pdf-file').prop('checked', true);
   if (fileTypesList.includes('.docx')) $('#input-docx-file').prop('checked', true);
   if (fileTypesList.includes('.txt')) $('#input-txt-file').prop('checked', true);
+  if (fileTypesList.includes('.kmz')) $('#input-kmz-file').prop('checked', true);
   const regexList = await CookieClass.getCookieList(CookieClass.cookieEnum[1]);
   regexList.forEach((r) => {
     $('#list-group-regex-input').append(window.SiteMapHome.getInputButton(r));
