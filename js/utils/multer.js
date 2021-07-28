@@ -33,7 +33,7 @@ const scraperOptions = multer({
     },
   }),
   limits: {
-    fileSize: 1000 * 1000 * 1000,
+    fileSize: 1000 * 1000 * 1000 * 12, // 12 gb
   },
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.zip$/)) {

@@ -2,14 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
 const viewerService = require('./viewer');
-const logger = require('../utils/logger');
+// const logger = require('../utils/logger');
 const { geoVariables } = require('../library/geoVariables');
 
 const readFile = promisify(fs.readFile);
 const appendFile = promisify(fs.appendFile);
 
 const KML_FILE_PATH = path.join(__dirname, '..', '..', 'logs');
-
 const switchGps = async (match) => {
   const coorPair = match.split(',');
   return `${coorPair[1]},${coorPair[0]}`;
@@ -17,34 +16,70 @@ const switchGps = async (match) => {
 
 const getGpsCoord = async (key, point) => {
   const id = Math.floor(Math.random() * 5000);
-  return `\n<Placemark id="${id}">\n\t<name>${key}</name>\n\t<Point><coordinates>${point},0</coordinates></Point>\n</Placemark>`;
+  return `\n\t<Placemark id="${id}">\n\t\t<name>${key}</name>\n\t\t<Point><coordinates>${point},0</coordinates></Point>\n\t</Placemark>`;
 };
 
-exports.writeToKml = async (key, strValue, kmlFile, format) => {
-  logger.info(strValue);
-  const matches = await viewerService.regexFromText(geoVariables.gpsRegex, 'ig', strValue);
-  if (matches.length > 0) {
-    await Promise.all(matches.map(async (match) => {
-      if (!match) return;
-      let newMatch = match;
-      if (format === 'latLong' && !key.endsWith('.kmz')) { // .kmz is already in the correct format
-        newMatch = await switchGps(match);
-      }
-      const strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');
-      await appendFile(kmlFile, await getGpsCoord(key, strGpsCoord));
-    }));
-  }
+const getKmzPoint = async (key, point) => {
+  const id = Math.floor(Math.random() * 5000);
+  return `\n\t<Placemark id="${id}">\n\t\t<name>${key}</name>\n\t\t<Point><coordinates>${point}</coordinates></Point>\n\t</Placemark>`;
+};
+
+const getKmzPolygon = async (key, polygon) => {
+  const id = Math.floor(Math.random() * 5000);
+  let outerBoundary = '';
+  polygon.outerBoundary.forEach((coord) => {
+    outerBoundary += `\n\t\t\t\t\t${coord},50`;
+  });
+  let innerBoundary = '';
+  polygon.innerBoundary.forEach((coord) => {
+    innerBoundary += `\n\t\t\t\t\t${coord},50`;
+  });
+  return `\n\t<Placemark id="${id}">\n\t\t<name>${key}</name>\n\t\t<Polygon>\n\t\t<extrude>${polygon.extrude}</extrude>\n\t\t<altitudeMode>relativeToGround</altitudeMode>
+  \n\t\t<outerBoundaryIs>\n\t\t\t<LinearRing>\n\t\t\t\t<coordinates>${outerBoundary}\n\t\t\t\t</coordinates>\n\t\t\t</LinearRing>\n\t\t</outerBoundaryIs>
+  \n\t\t<innerBoundaryIs>\n\t\t\t<LinearRing>\n\t\t\t\t<coordinates>${innerBoundary}\n\t\t\t\t</coordinates>\n\t\t\t</LinearRing>\n\t\t</innerBoundaryIs>
+  \t\t</Polygon>\n\t</Placemark>`;
+};
+
+exports.writeKmzDataToKml = async (key, value, kmlFile) => {
+  await Promise.all(value.map(async (val) => {
+    if (val.point) {
+      await appendFile(kmlFile, await getKmzPoint(key, val.point));
+    } else if (val.polygon) {
+      await appendFile(kmlFile, await getKmzPolygon(key, val.polygon));
+    }
+  }));
+};
+
+exports.writeToKml = async (key, value, kmlFile, format) => {
+  await Promise.all(value.map(async (strValue) => {
+    const matches = await viewerService.regexFromText(geoVariables.gpsRegex, 'ig', strValue.toString());
+    if (matches.length > 0) {
+      await Promise.all(matches.map(async (match) => {
+        if (!match) return;
+        let newMatch = match;
+        if (format === 'latLong') {
+          newMatch = await switchGps(match);
+        }
+        const strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');
+        await appendFile(kmlFile, await getGpsCoord(key, strGpsCoord));
+      }));
+    }
+  }));
 };
 
 exports.makeKml = async (filePath, format) => {
   const jsonData = await JSON.parse(await readFile(filePath));
-  logger.info(JSON.stringify(jsonData));
+  // logger.info(JSON.stringify(jsonData));
   const kmlFile = `${KML_FILE_PATH}/Site_Map_${Date.now()}.kml`;
   await appendFile(kmlFile, geoVariables.kmlHeader);
-  await appendFile(kmlFile, `<name>${path.basename(kmlFile)}</name>`);
+  await appendFile(kmlFile, `\t<name>${path.basename(kmlFile)}</name>`);
   await Promise.all(Object.entries(jsonData).map(async ([key, value]) => {
     if (!value || value.length === 0) return;
-    await exports.writeToKml(key, value.toString(), kmlFile, format);
+    if (key.endsWith('.kmz')) {
+      await exports.writeKmzDataToKml(key, value, kmlFile);
+    } else {
+      await exports.writeToKml(key, value, kmlFile, format);
+    }
   }));
   await appendFile(kmlFile, geoVariables.kmlFooter);
   return path.basename(kmlFile.replace(path.extname(kmlFile), ''));

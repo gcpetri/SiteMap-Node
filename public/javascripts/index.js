@@ -247,7 +247,7 @@ SiteMapHome.startScraperWorker = async (threadId, btn, originalColor) => {
   worker.onmessage = async (e) => {
     $('#num-files-scraped').text(e.data[0]);
     $('#scraper-state').text(e.data[1]);
-    console.info(`Message received from worker ${e.data}`);
+    // console.info(`Message received from worker ${e.data}`);
     if (e.data[1] === 'done' || e.data[1] === 'error') {
       $(btn).css('background-color', originalColor);
       $(btn).attr('disabled', false);
@@ -255,7 +255,7 @@ SiteMapHome.startScraperWorker = async (threadId, btn, originalColor) => {
       worker.terminate();
       $('.toast-container').append(SiteMapHome.getToast('Success', 'file scraper completed'));
       await SiteMapHome.getJSON(threadId);
-      await SiteMapHome.getTXT(threadId);
+      // await SiteMapHome.getTXT(threadId);
     }
   };
   worker.onerror = async (e) => {
@@ -383,7 +383,7 @@ $(() => {
     $(this).css('background-color', '#eee');
     const formData = new FormData();
     formData.append('file', file);
-    console.log(`Requesting to view file: ${file.name}`);
+    // console.log(`Requesting to view file: ${file.name}`);
     try {
       if (file.name.endsWith('.pdf') || file.name.endsWith('.docx')) {
         await SiteMapHome.postFileView(formData);

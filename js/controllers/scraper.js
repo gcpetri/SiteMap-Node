@@ -165,7 +165,7 @@ exports.auditLogs = async () => {
   const logPath = path.join(__dirname, '..', '..', 'logs');
   const files = await readdir(logPath);
   await Promise.all(files.map(async (file) => {
-    if ((Date.now() - (await stat(path.join(logPath, file))).mtimeMs) > 216000.0) {
+    if ((Date.now() - (await stat(path.join(logPath, file))).mtimeMs) > 21600.0) {
       await unlink(path.join(logPath, file));
     }
   }));

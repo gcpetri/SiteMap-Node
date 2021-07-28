@@ -48,7 +48,6 @@ exports.geoMain = async (req, res) => {
   try {
     await scraperController.auditLogs();
     if (await exists(filePath)) hasFile = true;
-    logger.info(format);
     response.kmlFileName = await geoService.makeKml(filePath, format);
     await unlink(filePath);
     res.status(200).json(response);

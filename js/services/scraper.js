@@ -39,7 +39,7 @@ exports.getRegexMatchesFromTxt = async (filePath, tags, regex) => {
 
 exports.getDataFromKmz = async (filePath) => {
   // KMZ To JSON From File
-  logger.info('get data from kmz');
+  // logger.info('get data from kmz');
   const getJson = new Promise((resolve) => {
     parseKMZ.toJson(filePath).then((results) => resolve(results));
   });
@@ -49,11 +49,18 @@ exports.getDataFromKmz = async (filePath) => {
     if (!entry || !entry.geometry) return;
     const { geometry } = entry;
     if (geometry.type === 'Point') {
-      coordinates.push(geometry.coordinates.toString());
+      coordinates.push({ point: geometry.coordinates });
     } else if (geometry.type === 'Polygon') {
-      coordinates.push(`{outerBoundary: [${geometry.coordinates[0]}],\ninnerBoundary: [${geometry.coordinates[1]}]}`);
+      logger.info(JSON.stringify(geometry));
+      coordinates.push({
+        polygon: {
+          outerBoundary: geometry.coordinates[0],
+          innerBoundary: geometry.coordinates[1],
+          extrude: entry.properties.extrude,
+        },
+      });
     }
   }));
-  logger.info(JSON.stringify(jsonData));
+  // logger.info(JSON.stringify(jsonData));
   return coordinates;
 };

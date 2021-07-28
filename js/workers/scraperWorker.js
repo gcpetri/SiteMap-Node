@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
 const StreamZip = require('node-stream-zip');
-const logger = require('../utils/logger');
+// const logger = require('../utils/logger');
 const viewerService = require('../services/viewer');
 const scraperService = require('../services/scraper');
 
@@ -71,13 +71,13 @@ const scrapeZip = async (filePath, fileIncludes, folderIncludes, fileTypes, tags
     let fileName = '';
     if (path.dirname(entry.name) !== '.') {
       if (!(await validateFolder(path.dirname(entry.name), folderIncludes))) return;
-      logger.info(`directory: ${entry.name}`);
+      // logger.info(`directory: ${entry.name}`);
       fileName = path.basename(entry.name);
     } else {
       fileName = entry.name;
     }
     if (!(await validateFile(fileName, fileIncludes, fileTypes))) return;
-    logger.info(`file: ${fileName}`);
+    // logger.info(`file: ${fileName}`);
     numFilesScraped += 1;
     parentPort.postMessage([numFilesScraped, statusTypes[1]]);
     try {
@@ -86,7 +86,7 @@ const scrapeZip = async (filePath, fileIncludes, folderIncludes, fileTypes, tags
       if (!matches || matches.length === 0) {
         throw new Error('no matches found');
       }
-      logger.info(matches);
+      // logger.info(matches);
       jsonData[entry.name] = matches;
     } catch (err) {
       await appendFile(errFileName, `${filePath},${err.message}\n`);
