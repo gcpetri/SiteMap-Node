@@ -51,6 +51,7 @@ exports.getDataFromKmz = async (filePath) => {
     if (geometry.type === 'Point') {
       coordinates.push({ point: geometry.coordinates });
     } else if (geometry.type === 'Polygon') {
+      if (geometry.coordinates.length < 2) return;
       logger.info(JSON.stringify(geometry));
       coordinates.push({
         polygon: {
