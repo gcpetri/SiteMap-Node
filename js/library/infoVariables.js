@@ -34,11 +34,11 @@ const infoVariables = {
   ],
   contact: {
     name: 'Gregory Petri',
-    email: 'gcpetri@outlook.com',
+    email: 'SiteMapApp@gmail.com',
     git: 'https://github.com/gcpetri/SiteMap-Node',
   },
   howTo: {
-    videoLink: '',
+    videoLink: 'https://www.youtube.com/watch?v=czwkulH5Pnw',
     docsLink: 'https://github.com/gcpetri/SiteMap-Node#readme',
   },
 };
