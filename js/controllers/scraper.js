@@ -69,7 +69,7 @@ exports.startWorker = async (filePath, fileIncludes, folderIncludes, fileTypes, 
   const worker = new Worker(path.join(__dirname, '..', 'workers', 'scraperWorker.js'), { workerData });
   exports.WORKER_STATUS[worker.threadId] = [0, 'starting'];
   worker.on('message', async (data) => {
-    logger.info(`parent got: ${data}`);
+    // logger.info(`parent got: ${data}`);
     exports.WORKER_STATUS[worker.threadId] = data;
     if (data[1] === 'done') {
       await worker.terminate();

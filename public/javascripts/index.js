@@ -83,9 +83,18 @@ SiteMapHome.removeInputButton = async (context) => {
     if (newNum >= 0) $('#num-input-regex-input').text(newNum.toString());
     $(context).remove();
     await SiteMapHome.refreshViewer();
+    const regexList = [];
+    // eslint-disable-next-line func-names
+    $('#list-group-regex-input').children().each(function () {
+      regexList.push($(this).text());
+    });
+    let oneLineRegex = '';
+    regexList.forEach((r, idx) => {
+      oneLineRegex += `${r}${(idx < regexList.length - 1) ? '(|)' : ''}`;
+    });
     await window.CookieClass.setCookie(
       window.CookieClass.cookieEnum[1],
-      await SiteMapHome.getRegex(),
+      oneLineRegex,
       window.CookieClass.MAX_DAYS,
     );
   } else if ($(parent).attr('id') === 'list-group-file-includes') {
@@ -411,6 +420,15 @@ $(() => {
     await SiteMapHome.refreshViewer();
   });
 
+  $('#case-sensitive-checkbox').on('click', async (e) => {
+    await SiteMapHome.refreshViewer();
+    await window.CookieClass.setCookie(
+      window.CookieClass.cookieEnum[4],
+      $('#case-sensitive-checkbox').is(':checked') ? 'true' : 'false',
+      window.CookieClass.MAX_DAYS,
+    );
+  });
+
   // add a regex input
   $('#btn-add-regex-input').on('click', async (e) => {
     e.preventDefault();
@@ -425,12 +443,20 @@ $(() => {
     const strNum = $('#num-input-regex-input').text();
     $('#num-input-regex-input').text((parseInt(strNum, 10) + 1).toString());
     await SiteMapHome.refreshViewer();
+    const regexList = [];
+    // eslint-disable-next-line func-names
+    $('#list-group-regex-input').children().each(function () {
+      regexList.push($(this).text());
+    });
+    let oneLineRegex = '';
+    regexList.forEach((r, idx) => {
+      oneLineRegex += `${r}${(idx < regexList.length - 1) ? '(|)' : ''}`;
+    });
     await window.CookieClass.setCookie(
       window.CookieClass.cookieEnum[1],
-      await SiteMapHome.getRegex(),
+      oneLineRegex,
       window.CookieClass.MAX_DAYS,
     );
-    // console.info(await window.CookieClass.getCookie(window.CookieClass.cookieEnum[1]));
   });
 
   // eslint-disable-next-line func-names
@@ -447,9 +473,18 @@ $(() => {
       const strNum = $('#num-input-regex-input').text();
       $('#num-input-regex-input').text((parseInt(strNum, 10) + 1).toString());
       await SiteMapHome.refreshViewer();
+      const regexList = [];
+      // eslint-disable-next-line func-names
+      $('#list-group-regex-input').children().each(function () {
+        regexList.push($(this).text());
+      });
+      let oneLineRegex = '';
+      regexList.forEach((r, idx) => {
+        oneLineRegex += `${r}${(idx < regexList.length - 1) ? '(|)' : ''}`;
+      });
       await window.CookieClass.setCookie(
         window.CookieClass.cookieEnum[1],
-        await SiteMapHome.getRegex(),
+        oneLineRegex,
         window.CookieClass.MAX_DAYS,
       );
     }

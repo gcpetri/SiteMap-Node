@@ -6,6 +6,7 @@ CookieClass.cookieEnum = {
   1: 'regex',
   2: 'fileIncludes',
   3: 'folderIncludes',
+  4: 'caseSensitive',
 };
 
 CookieClass.MAX_DAYS = 21;
@@ -41,13 +42,23 @@ CookieClass.getCookieList = async (cname) => {
   return cookieList;
 };
 
+CookieClass.getRegexCookieList = async (cname) => {
+  const cookieStr = await CookieClass.getCookie(cname);
+  const ca = cookieStr.split('(|)');
+  const cookieList = [];
+  ca.forEach((c) => {
+    if (c.trim().length > 0) cookieList.push(c);
+  });
+  return cookieList;
+};
+
 CookieClass.fetchAllCookies = async () => {
   const fileTypesList = await CookieClass.getCookieList(CookieClass.cookieEnum[0]);
   if (fileTypesList.includes('.pdf')) $('#input-pdf-file').prop('checked', true);
   if (fileTypesList.includes('.docx')) $('#input-docx-file').prop('checked', true);
   if (fileTypesList.includes('.txt')) $('#input-txt-file').prop('checked', true);
   if (fileTypesList.includes('.kmz')) $('#input-kmz-file').prop('checked', true);
-  const regexList = await CookieClass.getCookieList(CookieClass.cookieEnum[1]);
+  const regexList = await CookieClass.getRegexCookieList(CookieClass.cookieEnum[1]);
   regexList.forEach((r) => {
     $('#list-group-regex-input').append(window.SiteMapHome.getInputButton(r));
     const strNum = $('#num-input-regex-input').text();
@@ -65,4 +76,6 @@ CookieClass.fetchAllCookies = async () => {
     const strNum = $('#num-input-folder-includes').text();
     $('#num-input-folder-includes').text((parseInt(strNum, 10) + 1).toString());
   });
+  const caseSensitive = await CookieClass.getCookie(CookieClass.cookieEnum[4]);
+  $('#case-sensitive-checkbox').prop('checked', caseSensitive === 'true');
 };

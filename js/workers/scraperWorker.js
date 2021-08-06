@@ -1,11 +1,17 @@
+/**
+ * @module workers/scraperWorker
+ * @description does the hard work synchonously
+ */
+
 const { parentPort, workerData } = require('worker_threads');
 const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
+const asyncBatch = require('async-batch').default;
 const StreamZip = require('node-stream-zip');
-// const logger = require('../utils/logger');
 const viewerService = require('../services/viewer');
 const scraperService = require('../services/scraper');
+const logger = require('../utils/logger');
 
 const appendFile = promisify(fs.appendFile);
 
@@ -13,13 +19,28 @@ const JSON_FILE_NAME = path.join(__dirname, '..', '..', 'logs', 'SiteMap_matches
 const ERROR_LOG_NAME = path.join(__dirname, '..', '..', 'logs', 'error_log_');
 const TMP_STORAGE_PATH = path.join(__dirname, '..', '..', 'tmp');
 
+const MAX_CONCURRENT_PROMISES = 5;
+
 const statusTypes = {
   0: 'starting',
   1: 'working',
   2: 'done',
   3: 'error',
 };
-let numFilesScraped = 0;
+
+let NUM_FILES_SCRAPED = 0;
+
+const ZIP_DATA = {
+  filePath: null,
+  fileIncludes: null,
+  folderIncludes: null,
+  fileTypes: null,
+  tags: null,
+  regex: null,
+  jsonFileName: null,
+  errFileName: null,
+  zip: null,
+};
 
 const validateFile = async (fileName, fileIncludes, fileTypes) => {
   const fileExtension = path.extname(fileName);
@@ -33,7 +54,6 @@ const validateFile = async (fileName, fileIncludes, fileTypes) => {
   return re.test(fileName.replace(fileExtension, '')) || path.extname(fileName) === '.kmz';
 };
 
-// eslint-disable-next-line arrow-body-style
 const validateFolder = async (folderName, folderIncludes) => {
   if (folderIncludes.length === 0) {
     return true;
@@ -58,61 +78,75 @@ const handleFile = async (entryName, tags, regex) => {
   return null;
 };
 
-const scrapeZip = async (filePath, fileIncludes, folderIncludes, fileTypes, tags, regex) => {
-  numFilesScraped = 0;
-  const jsonFileName = `${JSON_FILE_NAME}${Date.now()}.json`;
-  const errFileName = `${ERROR_LOG_NAME}${Date.now()}.txt`;
-  await appendFile(errFileName, `${filePath},\nScraping Errors\n`);
-  // eslint-disable-next-line new-cap
-  const zip = new StreamZip.async({ file: filePath });
-  const entries = await zip.entries();
-  const jsonData = {};
-  await Promise.all(Object.values(entries).map(async (entry) => {
-    let fileName = '';
-    if (path.dirname(entry.name) !== '.') {
-      if (!(await validateFolder(path.dirname(entry.name), folderIncludes))) return;
-      // logger.info(`directory: ${entry.name}`);
-      fileName = path.basename(entry.name);
-    } else {
-      fileName = entry.name;
+const handleEntry = async (entry) => {
+  let fileName = '';
+  if (path.dirname(entry.name) !== '.') {
+    if (!(await validateFolder(path.dirname(entry.name), ZIP_DATA.folderIncludes))) return;
+    fileName = path.basename(entry.name);
+  } else {
+    fileName = entry.name;
+  }
+  if (!(await validateFile(fileName, ZIP_DATA.fileIncludes, ZIP_DATA.fileTypes))) return;
+  logger.info(fileName);
+  NUM_FILES_SCRAPED += 1;
+  parentPort.postMessage([NUM_FILES_SCRAPED, statusTypes[1]]);
+  try {
+    await ZIP_DATA.zip.extract(entry.name, path.join(TMP_STORAGE_PATH, fileName));
+    const matches = await handleFile(fileName, ZIP_DATA.tags, ZIP_DATA.regex);
+    if (!matches || matches.length === 0) {
+      throw new Error('no matches found');
     }
-    if (!(await validateFile(fileName, fileIncludes, fileTypes))) return;
-    // logger.info(`file: ${fileName}`);
-    numFilesScraped += 1;
-    parentPort.postMessage([numFilesScraped, statusTypes[1]]);
-    try {
-      await zip.extract(entry.name, `${TMP_STORAGE_PATH}/${fileName}`);
-      const matches = await handleFile(fileName, tags, regex);
-      if (!matches || matches.length === 0) {
-        throw new Error('no matches found');
-      }
-      // logger.info(matches);
-      jsonData[entry.name] = matches;
-    } catch (err) {
-      await appendFile(errFileName, `${filePath},${err.message}\n`);
-    }
-    await viewerService.removeFile(path.join(TMP_STORAGE_PATH, fileName));
-  }));
-  await appendFile(jsonFileName, JSON.stringify(jsonData, null, 4));
-  await zip.close();
-  await viewerService.removeFile(filePath);
-  parentPort.postMessage([numFilesScraped, statusTypes[2], jsonFileName, errFileName]);
+    await appendFile(ZIP_DATA.jsonFileName, `"${entry.name}": ${JSON.stringify(matches, null, 4)},`);
+  } catch (err) {
+    await appendFile(ZIP_DATA.errFileName, `${ZIP_DATA.filePath},${err.message}\n`);
+  }
+  await viewerService.removeFile(path.join(TMP_STORAGE_PATH, fileName));
 };
 
-const startScraperZip = async () => {
-  await scrapeZip(
-    workerData.filePath,
-    workerData.fileIncludes,
-    workerData.folderIncludes,
-    workerData.fileTypes,
-    workerData.tags,
-    workerData.regex,
-  );
+const scrapeZip = async (zipFilePath) => {
+  NUM_FILES_SCRAPED = 0;
+  ZIP_DATA.jsonFileName = `${JSON_FILE_NAME}${Date.now()}.json`;
+  ZIP_DATA.errFileName = `${ERROR_LOG_NAME}${Date.now()}.txt`;
+  await appendFile(ZIP_DATA.errFileName, `${zipFilePath},\nScraping Errors\n`);
+  await appendFile(ZIP_DATA.jsonFileName, '{');
+
+  // open the zip
+  // eslint-disable-next-line new-cap
+  const zip = new StreamZip.async({ file: zipFilePath });
+  ZIP_DATA.zip = zip;
+
+  // get the zip entries
+  const entries = await zip.entries();
+
+  // batch the loop
+  await asyncBatch(Object.values(entries), handleEntry, MAX_CONCURRENT_PROMISES);
+  await appendFile(ZIP_DATA.jsonFileName, '"tail": []\n}');
+
+  // close the zip
+  await zip.close();
+
+  // remove the zip file
+  await viewerService.removeFile(zipFilePath);
+
+  // tell the scraper we're done
+  parentPort.postMessage([
+    NUM_FILES_SCRAPED,
+    statusTypes[2],
+    ZIP_DATA.jsonFileName,
+    ZIP_DATA.errFileName,
+  ]);
 };
 
 (async () => {
   if (!parentPort) return;
-  // logger.info('worker starting...');
-  parentPort.postMessage([numFilesScraped, statusTypes[0]]);
-  if (path.extname(workerData.filePath) === '.zip') await startScraperZip();
+  parentPort.postMessage([NUM_FILES_SCRAPED, statusTypes[0]]);
+  if (path.extname(workerData.filePath) === '.zip') {
+    ZIP_DATA.filePath = workerData.filePath;
+    ZIP_DATA.fileIncludes = workerData.fileIncludes;
+    ZIP_DATA.folderIncludes = workerData.folderIncludes;
+    ZIP_DATA.fileTypes = workerData.fileTypes;
+    ZIP_DATA.regex = workerData.regex;
+    ZIP_DATA.tags = workerData.tags;
+    await scrapeZip(ZIP_DATA.filePath);
+  }
 })();
