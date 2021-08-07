@@ -1,3 +1,4 @@
+/* eslint-env jquery */
 /* eslint-disable no-console */
 // eslint-disable-next-line no-unused-vars, func-names
 const copyToClipboard = function (context) {

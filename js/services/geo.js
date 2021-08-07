@@ -16,12 +16,12 @@ const switchGps = async (match) => {
 
 const getGpsCoord = async (key, point) => {
   const id = Math.floor(Math.random() * 5000);
-  return `\n\t<Placemark id="${id}">\n\t\t<name>${key}</name>\n\t\t<Point><coordinates>${point},0</coordinates></Point>\n\t</Placemark>`;
+  return `\n\t<Placemark id="${id}">\n\t\t<name>${key.replace(/&/g, 'and')}</name>\n\t\t${geoVariables.pointStyleUrl}\n\t\t<Point><coordinates>${point},0</coordinates></Point>\n\t</Placemark>`;
 };
 
 const getKmzPoint = async (key, point) => {
   const id = Math.floor(Math.random() * 5000);
-  return `\n\t<Placemark id="${id}">\n\t\t<name>${key}</name>\n\t\t<Point><coordinates>${point}</coordinates></Point>\n\t</Placemark>`;
+  return `\n\t<Placemark id="${id}">\n\t\t<name>${key.replace(/&/g, 'and')}</name>\n\t\t${geoVariables.pointStyleUrl}\n\t\t<Point><coordinates>${point}</coordinates></Point>\n\t</Placemark>`;
 };
 
 const getKmzPolygon = async (key, polygon) => {
@@ -34,7 +34,7 @@ const getKmzPolygon = async (key, polygon) => {
   polygon.innerBoundary.forEach((coord) => {
     innerBoundary += `\n\t\t\t\t\t${coord},50`;
   });
-  return `\n\t<Placemark id="${id}">\n\t\t<name>${key}</name>\n\t\t<Polygon>\n\t\t<extrude>${polygon.extrude}</extrude>\n\t\t<altitudeMode>relativeToGround</altitudeMode>
+  return `\n\t<Placemark id="${id}">\n\t\t<name>${key.replace(/&/g, 'and')}</name>\n\t\t<Polygon>\n\t\t<extrude>${polygon.extrude}</extrude>\n\t\t<altitudeMode>relativeToGround</altitudeMode>
   \n\t\t<outerBoundaryIs>\n\t\t\t<LinearRing>\n\t\t\t\t<coordinates>${outerBoundary}\n\t\t\t\t</coordinates>\n\t\t\t</LinearRing>\n\t\t</outerBoundaryIs>
   \n\t\t<innerBoundaryIs>\n\t\t\t<LinearRing>\n\t\t\t\t<coordinates>${innerBoundary}\n\t\t\t\t</coordinates>\n\t\t\t</LinearRing>\n\t\t</innerBoundaryIs>
   \t\t</Polygon>\n\t</Placemark>`;
@@ -57,11 +57,19 @@ exports.writeToKml = async (key, value, kmlFile, format) => {
       await Promise.all(matches.map(async (match) => {
         if (!match) return;
         let newMatch = match;
+        let strGpsCoord = null;
         if (format === 'latLong') {
           newMatch = await switchGps(match);
+          strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');
+          if (strGpsCoord[0] !== '-') strGpsCoord = `-${strGpsCoord}`;
+        } else if (format === 'longLat') {
+          strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');
+          if (!strGpsCoord.includes(',-')) {
+            const coords = strGpsCoord.split(',');
+            strGpsCoord = `${coords[0]},-${coords[1]}`;
+          }
         }
-        const strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');
-        await appendFile(kmlFile, await getGpsCoord(key, strGpsCoord));
+        if (strGpsCoord) await appendFile(kmlFile, await getGpsCoord(key, strGpsCoord));
       }));
     }
   }));
@@ -73,6 +81,7 @@ exports.makeKml = async (filePath, format) => {
   const kmlFile = `${KML_FILE_PATH}/Site_Map_${Date.now()}.kml`;
   await appendFile(kmlFile, geoVariables.kmlHeader);
   await appendFile(kmlFile, `\t<name>${path.basename(kmlFile)}</name>`);
+  await appendFile(kmlFile, geoVariables.pointStyle);
   await Promise.all(Object.entries(jsonData).map(async ([key, value]) => {
     if (!value || value.length === 0) return;
     if (key.endsWith('.kmz')) {

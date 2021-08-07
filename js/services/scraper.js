@@ -50,7 +50,6 @@ exports.getDataFromKmz = async (filePath) => {
       coordinates.push({ point: geometry.coordinates });
     } else if (geometry.type === 'Polygon') {
       if (geometry.coordinates.length < 2) return;
-      // logger.info(JSON.stringify(geometry));
       coordinates.push({
         polygon: {
           outerBoundary: geometry.coordinates[0],
@@ -60,6 +59,5 @@ exports.getDataFromKmz = async (filePath) => {
       });
     }
   }));
-  // logger.info(JSON.stringify(jsonData));
   return coordinates;
 };

@@ -1,12 +1,17 @@
+/* eslint-env jquery */
 /* eslint-disable no-console */
 window.SiteMapHome = {};
 const { SiteMapHome } = window;
 
 // add the toasts for user feedback
 // eslint-disable-next-line no-unused-vars
-SiteMapHome.closeToast = (context) => {
+SiteMapHome.removeToast = (context) => {
   const nearToast = $(context).closest('.toast');
   $(nearToast).remove();
+};
+
+SiteMapHome.closeToast = () => {
+  setTimeout(() => $('.toast-container').children().first().remove(), 4000);
 };
 
 SiteMapHome.getToast = (title, toastText) => {
@@ -22,7 +27,7 @@ SiteMapHome.getToast = (title, toastText) => {
   } else if (title === 'Warning') {
     Title = `<span style="color:yellow">${title}</span>`;
   }
-  const div = `<div class='toast' data-autohide='false' role='alert' aria-live='assertive' aria-atomic='true'>
+  const div = `<div class='toast' role='alert' aria-live='assertive' aria-atomic='true'>
     <div class='toast-header'>
       <div class='row'>
         <div class='col-sm-8'>
@@ -32,7 +37,7 @@ SiteMapHome.getToast = (title, toastText) => {
           <small class='text-muted'>${time}</small>
         </div>
         <div class='col-sm-2'>
-          <button id='btn-close-toast' type='button' class='btn-close' aria-label='Close' onclick=SiteMapHome.closeToast(this)></button>
+          <button id='btn-close-toast' type='button' class='btn-close' aria-label='Close' onclick=SiteMapHome.removeToast(this)></button>
         </div>
       </div>
     </div>
@@ -191,10 +196,12 @@ SiteMapHome.postFileView = async (formData) => {
   const text = result.fileData;
   if (text.length === 0) {
     $('.toast-container').append(SiteMapHome.getToast('Error', 'file contained no text'));
+    SiteMapHome.closeToast();
     return;
   }
   await SiteMapHome.showRegexInViewer(text);
   $('.toast-container').append(SiteMapHome.getToast('Success', 'conversion of file to text successful'));
+  SiteMapHome.closeToast();
 };
 
 SiteMapHome.getTextFromTxt = async (file) => {
@@ -222,12 +229,14 @@ SiteMapHome.validateFileName = async (fileName) => {
   });
   if (!fileInclude) {
     $('.toast-container').append(SiteMapHome.getToast('Warning', 'This file would not be scraped due to File Type restrictions'));
+    SiteMapHome.closeToast();
   }
   const fileIncludes = await SiteMapHome.getFileIncludes(fileName);
   if (fileIncludes.length === 0) return;
   const re = new RegExp(fileIncludes, $('#case-sensitive-checkbox[type=checkbox]').is(':checked') ? 'g' : 'ig');
   if (!re.test(fileName)) {
     $('.toast-container').append(SiteMapHome.getToast('Warning', 'This file would not be scraped due to File Includes restrictions'));
+    SiteMapHome.closeToast();
   }
 };
 
@@ -265,6 +274,7 @@ SiteMapHome.startScraperWorker = async (threadId, btn, originalColor) => {
       $('.toast-container').append(SiteMapHome.getToast('Success', 'file scraper completed'));
       await SiteMapHome.getJSON(threadId);
       // await SiteMapHome.getTXT(threadId);
+      SiteMapHome.closeToast();
     }
   };
   worker.onerror = async (e) => {
@@ -277,6 +287,7 @@ SiteMapHome.startScraperWorker = async (threadId, btn, originalColor) => {
     $('.toast-container').append(SiteMapHome.getToast('Error', 'file scraper received an error'));
     await SiteMapHome.getJSON(threadId);
     await SiteMapHome.getTXT(threadId);
+    SiteMapHome.closeToast();
   };
   worker.onmessageerror = async (e) => {
     console.info(e);
@@ -377,7 +388,7 @@ $(() => {
   // initialize boostrap tooltips
   $('[data-toggle="tooltip"]').tooltip();
   // toasts
-  $('.toast').toast({ delay: 3000 });
+  $('.toast').toast();
 
   // get the viewer test file
   // eslint-disable-next-line func-names
@@ -386,6 +397,7 @@ $(() => {
     const file = $('#view-file')[0].files[0];
     if (!file) {
       $('.toast-container').append(SiteMapHome.getToast('Error', 'please select a file first'));
+      SiteMapHome.closeToast();
       return;
     }
     const originalColor = $(this).css('background-color');
@@ -402,6 +414,7 @@ $(() => {
     } catch (err) {
       console.log(`ERROR: ${err}`);
       $('.toast-container').append(SiteMapHome.getToast('Error', 'could not convert pdf to text'));
+      SiteMapHome.closeToast();
     }
     $(this).css('background-color', originalColor);
     await SiteMapHome.validateFileName(file.name);
@@ -420,7 +433,7 @@ $(() => {
     await SiteMapHome.refreshViewer();
   });
 
-  $('#case-sensitive-checkbox').on('click', async (e) => {
+  $('#case-sensitive-checkbox').on('click', async () => {
     await SiteMapHome.refreshViewer();
     await window.CookieClass.setCookie(
       window.CookieClass.cookieEnum[4],
@@ -435,6 +448,7 @@ $(() => {
     const inputStr = $('#input-regex-input').val();
     if (inputStr.length === 0) {
       $('.toast-container').append(SiteMapHome.getToast('Error', 'a string is required'));
+      SiteMapHome.closeToast();
       return;
     }
     $('#input-regex-input').val('');
@@ -465,6 +479,7 @@ $(() => {
       const inputStr = $(this).val();
       if (inputStr.length === 0) {
         $('.toast-container').append(SiteMapHome.getToast('Error', 'a string is required'));
+        SiteMapHome.closeToast();
         return;
       }
       $(this).val('');
@@ -496,6 +511,7 @@ $(() => {
     const inputStr = $('#input-file-includes').val();
     if (inputStr.length === 0) {
       $('.toast-container').append(SiteMapHome.getToast('Error', 'a string is required'));
+      SiteMapHome.closeToast();
       return;
     }
     $('#input-file-includes').val('');
@@ -516,6 +532,7 @@ $(() => {
       const inputStr = $(this).val();
       if (inputStr.length === 0) {
         $('.toast-container').append(SiteMapHome.getToast('Error', 'a string is required'));
+        SiteMapHome.closeToast();
         return;
       }
       $(this).val('');
@@ -537,6 +554,7 @@ $(() => {
     const inputStr = $('#input-folder-includes').val();
     if (inputStr.length === 0) {
       $('.toast-container').append(SiteMapHome.getToast('Error', 'a string is required'));
+      SiteMapHome.closeToast();
       return;
     }
     $('#input-folder-includes').val('');
@@ -557,6 +575,7 @@ $(() => {
       const inputStr = $(this).val();
       if (inputStr.length === 0) {
         $('.toast-container').append(SiteMapHome.getToast('Error', 'a string is required'));
+        SiteMapHome.closeToast();
         return;
       }
       $(this).val('');
@@ -589,6 +608,7 @@ $(() => {
     const file = $('#scraper-file')[0].files[0];
     if (!file) {
       $('.toast-container').append(SiteMapHome.getToast('Error', 'please select a file first'));
+      SiteMapHome.closeToast();
       return;
     }
     const originalColor = $(this).css('background-color');
@@ -607,6 +627,7 @@ $(() => {
       const filePath = await SiteMapHome.postScraperUpload(formData);
       if (!filePath) {
         $('.toast-container').append(SiteMapHome.getToast('Error', 'could not get provided'));
+        SiteMapHome.closeToast();
         return;
       }
       const threadId = await SiteMapHome.postStartScraper(filePath);
@@ -617,6 +638,7 @@ $(() => {
       $('.scraper-spinner').css('visibility', 'hidden');
       console.info(`ERROR: ${err}`);
       $('.toast-container').append(SiteMapHome.getToast('Error', err.message));
+      SiteMapHome.closeToast();
     }
   });
 
@@ -650,6 +672,7 @@ $(() => {
     const file = $('#geo-file')[0].files[0];
     if (!file) {
       $('.toast-container').append(SiteMapHome.getToast('Error', 'please select a file first'));
+      SiteMapHome.closeToast();
       return;
     }
     const originalColor = $(this).css('background-color');
@@ -664,15 +687,17 @@ $(() => {
       const fileName = await SiteMapHome.startGeoScraper(filePath, format);
       await SiteMapHome.getKML(fileName);
       $(this).css('background-color', originalColor);
-      $(this).attr('disabled', true);
+      $(this).attr('disabled', false);
       $('.geo-spinner').css('visibility', 'hidden');
       $('.toast-container').append(SiteMapHome.getToast('Success', 'successfully generated kml file'));
+      SiteMapHome.closeToast();
     } catch (err) {
       $(this).css('background-color', originalColor);
-      $(this).attr('disabled', true);
+      $(this).attr('disabled', false);
       $('.geo-spinner').css('visibility', 'hidden');
       console.info(`ERROR: ${err}`);
       $('.toast-container').append(SiteMapHome.getToast('Error', err.message));
+      SiteMapHome.closeToast();
     }
   });
 

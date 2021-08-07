@@ -51,3 +51,6 @@ const listener = app.listen(PORT, (err) => {
   }
   logger.info(`Listening on port ${listener.address().port}`);
 });
+
+scraperController.auditLogs().then(() => logger.info('audited /logs'));
+scraperController.auditTmp().then(() => logger.info('audited /tmp'));

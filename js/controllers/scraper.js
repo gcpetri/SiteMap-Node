@@ -69,24 +69,27 @@ exports.startWorker = async (filePath, fileIncludes, folderIncludes, fileTypes, 
   const worker = new Worker(path.join(__dirname, '..', 'workers', 'scraperWorker.js'), { workerData });
   exports.WORKER_STATUS[worker.threadId] = [0, 'starting'];
   worker.on('message', async (data) => {
-    // logger.info(`parent got: ${data}`);
+    logger.info(`parent got: ${JSON.stringify(data)}`);
+    const lastStatus = exports.WORKER_STATUS;
     exports.WORKER_STATUS[worker.threadId] = data;
     if (data[1] === 'done') {
       await worker.terminate();
       await viewerService.removeFile(filePath);
     } else if (data[1] === 'error') {
-      exports.WORKER_STATUS[worker.threadId] = [0, 'error'];
+      exports.WORKER_STATUS[worker.threadId] = [lastStatus[0], 'error'];
       await worker.terminate();
       await viewerService.removeFile(filePath);
     }
   });
   worker.on('error', async (err) => {
-    exports.WORKER_STATUS[worker.threadId] = [0, 'error'];
+    const lastStatus = exports.WORKER_STATUS;
+    exports.WORKER_STATUS[worker.threadId] = [lastStatus[0], 'error'];
     await viewerService.removeFile(filePath);
     logger.info(`Worker sent error ${err}`);
   });
   worker.on('exit', async (code) => {
-    // WORKER_STATUS[worker.threadId] = [0, 'done'];
+    const lastStatus = exports.WORKER_STATUS;
+    exports.WORKER_STATUS[worker.threadId] = [lastStatus[0], 'done'];
     await viewerService.removeFile(filePath);
     logger.info(`Worker stopped with exit code ${code}`);
   });
@@ -167,6 +170,16 @@ exports.auditLogs = async () => {
   await Promise.all(files.map(async (file) => {
     if ((Date.now() - (await stat(path.join(logPath, file))).mtimeMs) > 21600.0) {
       await unlink(path.join(logPath, file));
+    }
+  }));
+};
+
+exports.auditTmp = async () => {
+  const tmpPath = path.join(__dirname, '..', '..', 'tmp');
+  const files = await readdir(tmpPath);
+  await Promise.all(files.map(async (file) => {
+    if ((Date.now() - (await stat(path.join(tmpPath, file))).mtimeMs) > 21600.0) {
+      await unlink(path.join(tmpPath, file));
     }
   }));
 };

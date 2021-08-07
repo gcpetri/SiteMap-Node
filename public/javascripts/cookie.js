@@ -1,3 +1,4 @@
+/* eslint-env jquery */
 window.CookieClass = {};
 const { CookieClass } = window;
 
