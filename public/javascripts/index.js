@@ -315,11 +315,13 @@ SiteMapHome.postStartScraper = async (filePath) => {
     fileTypes: null,
     tags: null,
     regex: null,
+    onlyFirstMatch: null,
   };
   requestBody.regex = await SiteMapHome.getRegex();
   requestBody.fileTypes = await SiteMapHome.getFileTypes();
   requestBody.folderIncludes = await SiteMapHome.getFolderIncludes();
   requestBody.fileIncludes = await SiteMapHome.getFileIncludes();
+  requestBody.onlyFirstMatch = $('#only-first-match').is(':checked');
   requestBody.tags = $('#case-sensitive-checkbox[type=checkbox]').is(':checked') ? 'g' : 'ig';
   const res = await fetch('/api/scraper/start', {
     method: 'POST',
@@ -338,10 +340,11 @@ SiteMapHome.postStartScraper = async (filePath) => {
 };
 
 // ---- geo helpers ----
-SiteMapHome.startGeoScraper = async (filePath, format) => {
+SiteMapHome.startGeoScraper = async (filePath, format, onlyFirstMatch) => {
   const requestBody = {
     filePath,
     format,
+    onlyFirstMatch,
   };
   const res = await fetch('/api/geo/start', {
     method: 'POST',
@@ -682,9 +685,10 @@ $(() => {
     const formData = new FormData();
     formData.append('file', file);
     const format = $('#latLong').is(':checked') ? 'latLong' : 'longLat';
+    const onlyFirstMatch = $('#only-first-match').is(':checked');
     try {
       const filePath = await SiteMapHome.geoUpload(formData);
-      const fileName = await SiteMapHome.startGeoScraper(filePath, format);
+      const fileName = await SiteMapHome.startGeoScraper(filePath, format, onlyFirstMatch);
       await SiteMapHome.getKML(fileName);
       $(this).css('background-color', originalColor);
       $(this).attr('disabled', false);

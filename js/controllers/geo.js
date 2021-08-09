@@ -43,12 +43,13 @@ exports.geoMain = async (req, res) => {
   };
   const { filePath } = req.body;
   const { format } = req.body;
+  const { onlyFirstMatch } = req.body;
   logger.info(JSON.stringify(req.body));
   let hasFile = false;
   try {
     await scraperController.auditLogs();
     if (await exists(filePath)) hasFile = true;
-    response.kmlFileName = await geoService.makeKml(filePath, format);
+    response.kmlFileName = await geoService.makeKml(filePath, format, onlyFirstMatch);
     await unlink(filePath);
     res.status(200).json(response);
   } catch (err) {
