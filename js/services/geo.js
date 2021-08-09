@@ -50,32 +50,53 @@ exports.writeKmzDataToKml = async (key, value, kmlFile) => {
   }));
 };
 
-exports.writeToKml = async (key, value, kmlFile, format) => {
-  await Promise.all(value.map(async (strValue) => {
-    const matches = await viewerService.regexFromText(geoVariables.gpsRegex, 'ig', strValue.toString());
-    if (matches.length > 0) {
-      await Promise.all(matches.map(async (match) => {
-        if (!match) return;
-        let newMatch = match;
-        let strGpsCoord = null;
-        if (format === 'latLong') {
-          newMatch = await switchGps(match);
-          strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');
-          if (strGpsCoord[0] !== '-') strGpsCoord = `-${strGpsCoord}`;
-        } else if (format === 'longLat') {
-          strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');
-          if (!strGpsCoord.includes(',-')) {
-            const coords = strGpsCoord.split(',');
-            strGpsCoord = `${coords[0]},-${coords[1]}`;
-          }
-        }
-        if (strGpsCoord) await appendFile(kmlFile, await getGpsCoord(key, strGpsCoord));
-      }));
+exports.writeToKml = async (key, value, kmlFile, format, onlyFirstMatch) => {
+  if (onlyFirstMatch) {
+    if (value.length === 0) return;
+    const match = (await viewerService.regexFromText(geoVariables.gpsRegex, 'ig', value[0].toString()))[0];
+    if (!match) return;
+    if (match.length === 0) return;
+    let newMatch = match;
+    let strGpsCoord = null;
+    if (format === 'latLong') {
+      newMatch = await switchGps(match);
+      strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');
+      if (strGpsCoord[0] !== '-') strGpsCoord = `-${strGpsCoord}`;
+    } else if (format === 'longLat') {
+      strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');
+      if (!strGpsCoord.includes(',-')) {
+        const coords = strGpsCoord.split(',');
+        strGpsCoord = `${coords[0]},-${coords[1]}`;
+      }
     }
-  }));
+    if (strGpsCoord) await appendFile(kmlFile, await getGpsCoord(key, strGpsCoord));
+  } else {
+    await Promise.all(value.map(async (strValue) => {
+      const matches = await viewerService.regexFromText(geoVariables.gpsRegex, 'ig', strValue.toString());
+      if (matches.length > 0) {
+        await Promise.all(matches.map(async (match) => {
+          if (!match) return;
+          let newMatch = match;
+          let strGpsCoord = null;
+          if (format === 'latLong') {
+            newMatch = await switchGps(match);
+            strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');
+            if (strGpsCoord[0] !== '-') strGpsCoord = `-${strGpsCoord}`;
+          } else if (format === 'longLat') {
+            strGpsCoord = await newMatch.replace(/[^\d^,^.^-]/g, '');
+            if (!strGpsCoord.includes(',-')) {
+              const coords = strGpsCoord.split(',');
+              strGpsCoord = `${coords[0]},-${coords[1]}`;
+            }
+          }
+          if (strGpsCoord) await appendFile(kmlFile, await getGpsCoord(key, strGpsCoord));
+        }));
+      }
+    }));
+  }
 };
 
-exports.makeKml = async (filePath, format) => {
+exports.makeKml = async (filePath, format, onlyFirstMatch) => {
   const jsonData = await JSON.parse(await readFile(filePath));
   // logger.info(JSON.stringify(jsonData));
   const kmlFile = `${KML_FILE_PATH}/Site_Map_${Date.now()}.kml`;
@@ -87,7 +108,7 @@ exports.makeKml = async (filePath, format) => {
     if (key.endsWith('.kmz')) {
       await exports.writeKmzDataToKml(key, value, kmlFile);
     } else {
-      await exports.writeToKml(key, value, kmlFile, format);
+      await exports.writeToKml(key, value, kmlFile, format, onlyFirstMatch);
     }
   }));
   await appendFile(kmlFile, geoVariables.kmlFooter);
