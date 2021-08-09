@@ -273,7 +273,7 @@ SiteMapHome.startScraperWorker = async (threadId, btn, originalColor) => {
       worker.terminate();
       $('.toast-container').append(SiteMapHome.getToast('Success', 'file scraper completed'));
       await SiteMapHome.getJSON(threadId);
-      // await SiteMapHome.getTXT(threadId);
+      await SiteMapHome.getTXT(threadId);
       SiteMapHome.closeToast();
     }
   };
